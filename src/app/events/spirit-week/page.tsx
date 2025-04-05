@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card"
 import { CalendarIcon } from "lucide-react"
-import { Navbar } from "@/components/navbar"
+import { Navbar } from "@/components/navbar/navbar"
 
 export default function SpiritWeekPage() {
   return (

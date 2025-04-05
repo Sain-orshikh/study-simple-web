@@ -1,4 +1,4 @@
-import { Navbar } from "@/components/navbar"
+import { Navbar } from "@/components/navbar/navbar"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -74,42 +74,43 @@ export default function StudyToolsPage() {
   ]
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <Navbar currentPath="/study-tools" />
+    <>
+      <Navbar />
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <main className="space-y-8">
+          <h1 className="text-3xl font-bold mb-6">Study Tools</h1>
 
-      <main className="space-y-8">
-        <h1 className="text-3xl font-bold mb-6">Study Tools</h1>
-
-        <p className="text-lg mb-6">
-          Enhance your study sessions with these helpful tools designed to improve productivity, organization, and
-          learning efficiency.
-        </p>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tools.map((tool) => (
-            <Card
-              key={tool.id}
-              className="p-6 flex flex-col items-center text-center hover:shadow-md transition-shadow"
-            >
-              <div className="mb-4">{tool.icon}</div>
-              <h2 className="text-xl font-semibold mb-2">{tool.name}</h2>
-              <p className="text-gray-600 mb-4">{tool.description}</p>
-              <Button asChild className="mt-auto">
-                <Link href={tool.link}>Use Tool</Link>
-              </Button>
-            </Card>
-          ))}
-        </div>
-
-        <div className="mt-8 p-6 bg-gray-50 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">Suggest a Tool</h2>
-          <p className="mb-4">
-            Have an idea for a study tool that would be helpful? Let us know, and we might add it to our collection!
+          <p className="text-lg mb-6">
+            Enhance your study sessions with these helpful tools designed to improve productivity, organization, and
+            learning efficiency.
           </p>
-          <Button variant="outline">Submit Suggestion</Button>
-        </div>
-      </main>
-    </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {tools.map((tool) => (
+              <Card
+                key={tool.id}
+                className="p-6 flex flex-col items-center text-center hover:shadow-md transition-shadow"
+              >
+                <div className="mb-4">{tool.icon}</div>
+                <h2 className="text-xl font-semibold mb-2">{tool.name}</h2>
+                <p className="text-gray-600 mb-4">{tool.description}</p>
+                <Button asChild className="mt-auto">
+                  <Link href={tool.link}>Use Tool</Link>
+                </Button>
+              </Card>
+            ))}
+          </div>
+
+          <div className="mt-8 p-6 bg-gray-50 rounded-lg">
+            <h2 className="text-xl font-semibold mb-4">Suggest a Tool</h2>
+            <p className="mb-4">
+              Have an idea for a study tool that would be helpful? Let us know, and we might add it to our collection!
+            </p>
+            <Button variant="outline">Submit Suggestion</Button>
+          </div>
+        </main>
+      </div>
+    </>
   )
 }
 

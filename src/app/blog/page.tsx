@@ -1,9 +1,6 @@
-import Link from "next/link"
-import { Card } from "@/components/ui/card"
-import { LightbulbIcon, CalendarIcon, MusicIcon, LaptopIcon } from "lucide-react"
 import { Navbar } from "@/components/navbar/navbar"
 
-export default function Home() {
+export default function Blog() {
   return (
     <>
       <Navbar />
@@ -82,4 +79,3 @@ export default function Home() {
     </>
   )
 }
-

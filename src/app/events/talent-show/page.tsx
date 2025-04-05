@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { MusicIcon } from "lucide-react"
-import { Navbar } from "@/components/navbar"
+import { Navbar } from "@/components/navbar/navbar"
 
 export default function TalentShowPage() {
   return (
