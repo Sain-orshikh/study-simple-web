@@ -1,71 +1,89 @@
+"use client"
+
 import { Navbar } from "@/components/navbar/navbar"
-import { Card } from "@/components/ui/card"
-import Link from "next/link"
-import { CalendarIcon, ClockIcon, UserIcon } from "lucide-react"
+import { useQuery } from '@tanstack/react-query';
+import { useState } from "react"
+import { Grid } from "@mui/material"
+import BlogCard from "@/components/ui/BlogCard"
+import { FaPenClip } from "react-icons/fa6";
+import { AnimatedBackground } from "@/components/ui/animatedbg";
 
 export default function BlogsPage() {
-  const blogPosts = [
-    {
-      id: 1,
-      title: "How to Prepare for Final Exams",
-      excerpt:
-        "Final exams can be stressful, but with the right preparation strategy, you can ace them. Here are some tips to help you prepare effectively.",
-      author: "Study Simple Team",
-      date: "May 15, 2023",
-      readTime: "5 min read",
-      category: "Study Tips",
-    },
-    {
-      id: 2,
-      title: "The Benefits of Study Groups",
-      excerpt:
-        "Studying with peers can enhance your learning experience. Discover how study groups can improve your understanding and retention of material.",
-      author: "Araljan Abal",
-      date: "April 28, 2023",
-      readTime: "4 min read",
-      category: "Collaboration",
-    },
-    {
-      id: 3,
-      title: "Time Management for Students",
-      excerpt:
-        "Balancing academics, extracurriculars, and personal life can be challenging. Learn effective time management techniques to maximize productivity.",
-      author: "Study Simple Team",
-      date: "April 10, 2023",
-      readTime: "6 min read",
-      category: "Productivity",
-    },
-    {
-      id: 4,
-      title: "Note-Taking Strategies That Work",
-      excerpt:
-        "Effective note-taking is a skill that can significantly impact your academic success. Explore different methods and find what works for you.",
-      author: "Study Simple Team",
-      date: "March 22, 2023",
-      readTime: "7 min read",
-      category: "Study Skills",
-    },
-  ]
 
+  const {data:blogs} = useQuery({
+    queryKey: ['blogs'],
+    queryFn: async () => {
+      const res = await fetch("http://localhost:5000/api/blogs/fetch");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to fetch blogs");
+      return data;
+    },
+    retry: 1,
+    refetchOnWindowFocus: true,
+  });
+  
+  const Blogs = blogs?.data;
+
+  console.log("Blogs data:", Blogs);
+  const [visibleBlogs, setVisibleBlogs] = useState(12);
+
+  const handleLoadMore = () => {
+    setVisibleBlogs((prevNum: number) => prevNum + 12);
+  };
+
+  let displayedBlogs = [];
+
+
+  if(Blogs){
+    displayedBlogs = [...Blogs].slice(0, visibleBlogs);
+  }
+  
   const categories = [
     "All",
     "Study Tips",
     "Productivity",
-    "Collaboration",
     "Study Skills",
     "Mental Health",
     "Technology",
+    "Others"
   ]
 
   return (
     <>
-      <Navbar currentPath="/blogs" />
+      <Navbar />
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <main className="space-y-8">
-          <h1 className="text-3xl font-bold mb-6">Blogs</h1>
-
-          <div className="flex flex-wrap gap-2 mb-8">
-            {categories.map((category, index) => (
+          <h1 className="text-4xl font-bold mb-6">
+            Blogs
+            <FaPenClip className="inline-block ml-2 text-blue-500" size={30} />
+          </h1>
+          <div className="py-3 border-b border-t border-gray-300 mb-4 text-start text-gray-600">
+            Here, you can find interesting blogs😊
+          </div>
+          <div className="flex flex-wrap gap-2 mb-8 border-b border-gray-300 pb-4">
+            <AnimatedBackground
+              defaultValue='All'
+              className='rounded-lg bg-gray-300 dark:bg-zinc-700'
+              transition={{
+                ease: 'easeInOut',
+                duration: 0.2,
+              }}
+            >
+              {categories.map((label, index) => {
+                return (
+                  <button
+                    key={index}
+                    data-id={label}
+                    type='button'
+                    aria-label={`${label} view`}
+                    className='inline-flex px-4 py-2 rounded-full items-center bg-gray-100 justify-center text-center text-zinc-800 transition-transform active:scale-[0.98] dark:text-zinc-50'
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </AnimatedBackground>
+            {/*categories.map((category, index) => (
               <button
                 key={index}
                 className={`px-4 py-2 rounded-full text-sm ${
@@ -74,38 +92,31 @@ export default function BlogsPage() {
               >
                 {category}
               </button>
-            ))}
+            ))*/}
           </div>
-
-          <div className="grid gap-6">
-            {blogPosts.map((post) => (
-              <Card key={post.id} className="p-6 hover:shadow-md transition-shadow">
-                <Link href={`/blogs/${post.id}`}>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-start">
-                      <h2 className="text-xl font-semibold hover:text-blue-600 transition-colors">{post.title}</h2>
-                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">{post.category}</span>
-                    </div>
-                    <p className="text-gray-600">{post.excerpt}</p>
-                    <div className="flex items-center text-sm text-gray-500 gap-4">
-                      <div className="flex items-center">
-                        <UserIcon className="h-4 w-4 mr-1" />
-                        {post.author}
-                      </div>
-                      <div className="flex items-center">
-                        <CalendarIcon className="h-4 w-4 mr-1" />
-                        {post.date}
-                      </div>
-                      <div className="flex items-center">
-                        <ClockIcon className="h-4 w-4 mr-1" />
-                        {post.readTime}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </Card>
-            ))}
-          </div>
+          {Blogs && (
+          <Grid container columnSpacing={4} rowSpacing={2} columns={12} >
+                  {displayedBlogs.map((blog) => (
+                  <Grid 
+                    size={{ xs: 12, sm: 4 }}
+                    key={blog._id}
+                    className="mx-auto"
+                  >
+                    <BlogCard blog={blog} />
+                  </Grid>
+                  ))}
+                </Grid>
+          )}
+          {Blogs && displayedBlogs.length < Blogs.length && (
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={handleLoadMore}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Load More
+              </button>
+            </div>
+          )}
         </main>
       </div>
     </>
