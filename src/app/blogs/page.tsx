@@ -19,7 +19,6 @@ export default function BlogsPage() {
       return data;
     },
     retry: 1,
-    refetchOnWindowFocus: true,
   });
   
   const Blogs = blogs?.data;
@@ -102,7 +101,7 @@ export default function BlogsPage() {
                     key={blog._id}
                     className="mx-auto"
                   >
-                    <BlogCard blog={blog} />
+                    <BlogCard blog={blog} isPreview={false} />
                   </Grid>
                   ))}
                 </Grid>

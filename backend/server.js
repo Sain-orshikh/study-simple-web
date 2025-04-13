@@ -2,6 +2,7 @@ import path from "path";
 import express from "express";
 import dotenv from "dotenv";
 import {v2 as cloudinary} from "cloudinary";
+import cors from "cors";
 
 import blogRoutes from "./routes/blog.route.js";
 import connectMongoDB from "./db/connectMongoDB.js";
@@ -18,7 +19,12 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
 
-// Enable CORS
+app.use(cors({
+    origin: "http://localhost:3000",
+    methods: "GET, POST, PUT, DELETE",
+    credentials: true,
+}));
+
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');

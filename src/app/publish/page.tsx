@@ -1,24 +1,79 @@
 "use client"
 
-import { FaNewspaper, FaUsers } from "react-icons/fa6";
-import { FaCheckCircle, FaUserPlus, FaUserEdit } from "react-icons/fa";
-import { MdOutlineAccessTimeFilled, MdAdd, MdSettings } from "react-icons/md";
+import { FaNewspaper, FaTrash } from "react-icons/fa6";
+import { FaCheckCircle } from "react-icons/fa";
+import { MdAdd, MdSettings } from "react-icons/md";
 import { BiSolidReport } from "react-icons/bi";
 import { useState } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/navbar/navbar";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Modal } from "@mui/material";
+import toast, { Toaster } from "react-hot-toast";
 
 const AdminPage = () => {
 
-  const [users] = useState(100);
-  const [news] = useState(50);
+  const {data:blogs} = useQuery({
+    queryKey: ['blogs'],
+    queryFn: async () => {
+      const res = await fetch("http://localhost:5000/api/blogs/fetch");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to fetch blogs");
+      return data;
+    },
+  });
+
+  const Blogs = blogs?.data.length;
+  console.log("Blogs data:", Blogs);
   const [status] = useState("active");
-  const [lastlogin] = useState("2h ago");
+
+  const [delId, setDelId] = useState("");
+
+  const { mutate: deleteBlog } = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`http://localhost:5000/api/blogs/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to delete blog");
+      return data;
+    },
+    onSuccess: () => {
+      toast.success("Blog deleted successfully");
+      setDelId("");
+    },  
+    onError: (error) => {
+      toast.error((error as Error).message || String(error));
+      toast.error("Get Blog Id from the URL to delete it.");
+    },
+  });
+
+  const handleDel = async () => {
+    if (!delId || delId.length === 0) {
+      toast.error("Please enter a blog ID to delete.");
+      return;
+    }
+    deleteBlog(delId);
+    setDelId("");
+  }
+
+  const [delOpen, setDelOpen] = useState(false);
+  const handleDelOpen = () => {
+    setDelOpen(true);
+  };
+
+  const handleUnfinished = () => {
+    toast.error("This feature is not available yet.");
+  }
 
   return (
     <>
       <Navbar />
-      <div className='w-full h-full flex flex-col py-6 px-10'>
+      <Toaster />
+      <div className='w-full h-full flex flex-col pt-6 px-10'>
         <div className='w-full flex justify-between space-x-10'>
           <button className='h-[5rem] w-[50%] border bg-white flex justify-center items-center shadow-sm hover:shadow-md'>
             <Link href={"/publish/news"}>
@@ -28,43 +83,23 @@ const AdminPage = () => {
               </div>
             </Link>
           </button>
-          <button className='h-[5rem] w-[50%] border bg-white flex justify-center items-center shadow-sm hover:shadow-md'>
-            <Link href={"/"}>
-              <div className="flex flex-row items-center">
-                <FaUsers className='text-4xl' />
-                <span className='text-4xl ml-2'>User Management</span>
-              </div>
-            </Link>
-          </button>
         </div>
-        <div className="w-full flex flex-row justify-between space-x-10 mt-10">
-          <div className="flex flex-row justify-between border bg-white shadow-sm hover:shadow-md p-4 w-[25%]">
+        <div className="w-[50%] flex flex-row justify-between space-x-10 mt-10">
+          <div className="flex flex-row justify-between border bg-white shadow-sm hover:shadow-md p-4 w-[50%]">
             <div className="flex flex-col">
               <span>
-                Total Users
+                Total Blogs
               </span>
               <span className="font-bold text-xl">
-                {users}
-              </span>
-            </div>
-            <div>
-              <FaUsers className='text-4xl' />
-            </div>
-          </div>
-          <div className="flex flex-row justify-between border bg-white shadow-sm hover:shadow-md p-4 w-[25%]">
-            <div className="flex flex-col">
-              <span>
-                Total News
-              </span>
-              <span className="font-bold text-xl">
-                {news}
+                {Blogs}
               </span>
             </div>
             <div>
               <FaNewspaper className='text-4xl' />
             </div>
+            
           </div>
-          <div className="flex flex-row justify-between border bg-white shadow-sm hover:shadow-md p-4 w-[25%]">
+          <div className="flex flex-row justify-between border bg-white shadow-sm hover:shadow-md p-4 w-[50%]">
             <div className="flex flex-col">
               <span>
                 System Status
@@ -77,19 +112,6 @@ const AdminPage = () => {
               <FaCheckCircle className='text-4xl' />
             </div>
           </div>
-          <div className="flex flex-row justify-between border bg-white shadow-sm hover:shadow-md p-4 w-[25%]">
-            <div className="flex flex-col">
-              <span>
-                Last Login
-              </span>
-              <span className="font-bold text-xl">
-                {lastlogin}
-              </span>
-            </div>
-            <div>
-              <MdOutlineAccessTimeFilled className='text-4xl' />
-            </div>
-          </div>
         </div>
         <div className="flex flex-row w-full space-x-10 mt-10">
           <div className="flex flex-col w-[50%] border bg-white shadow-sm hover:shadow-md p-4">
@@ -97,70 +119,69 @@ const AdminPage = () => {
               Quick Actions
             </span>
             <div className="flex flex-row">
-              <button className="flex flex-row items-center justify-center w-[50%] bg-black hover:bg-gray-900 text-white p-2 rounded-md shadow-sm hover:shadow-md mt-4 mr-4">
-                <MdAdd className='text-xl mr-1' />
-                Create News
-              </button>
-              <button className="flex flex-row items-center justify-center w-[50%] bg-black hover:bg-gray-900 text-white p-2 rounded-md shadow-sm hover:shadow-md mt-4 mr-4">
-                <FaUserPlus className='text-xl mr-1' />
-                Add User
+              <Link href={"/publish/news"} className="flex flex-row items-center justify-center w-[50%] bg-black hover:bg-gray-900 text-white p-2 rounded-md shadow-sm hover:shadow-md mt-4 mr-4">
+                <MdAdd className='text-2xl mr-1' />
+                Create Blog
+              </Link>
+              <button onClick={handleDelOpen} className="flex flex-row items-center justify-center w-[50%] bg-black hover:bg-gray-900 text-white p-2 rounded-md shadow-sm hover:shadow-md mt-4 mr-4">
+                <FaTrash className='text-lg mr-1' />
+                Delete Blogs
               </button>
             </div>
             <div className="flex flex-row">
-              <button className="flex flex-row items-center justify-center w-[50%] bg-black hover:bg-gray-900 text-white p-2 rounded-md shadow-sm hover:shadow-md mt-4 mr-4">
+              <button onClick={handleUnfinished} className="flex flex-row items-center justify-center w-[50%] bg-black hover:bg-gray-900 text-white p-2 rounded-md shadow-sm hover:shadow-md mt-4 mr-4">
                 <BiSolidReport className='text-xl mr-1' />
                 View Reports
               </button>
-              <button className="flex flex-row items-center justify-center w-[50%] bg-black hover:bg-gray-900 text-white p-2 rounded-md shadow-sm hover:shadow-md mt-4 mr-4">
+              <button onClick={handleUnfinished} className="flex flex-row items-center justify-center w-[50%] bg-black hover:bg-gray-900 text-white p-2 rounded-md shadow-sm hover:shadow-md mt-4 mr-4">
                 <MdSettings className='text-xl mr-1' />
                 Settings
               </button>
             </div>
             <div>
-
-            </div>
-          </div>
-          <div className="flex flex-col w-[50%] border bg-white shadow-sm hover:shadow-md p-4">
-            <span className="text-2xl font-bold">
-              Recent Activities
-            </span>
-            <div className="flex flex-row items-center mt-4">
-              <FaUserEdit className='text-2xl mr-2' />
-              <div className="flex flex-col">
-                <span>User profile updated</span>
-                <span className="text-gray-500 text-sm">1h ago</span>
-              </div>
-            </div>
-            <div className="flex flex-row items-center mt-4">
-              <FaUserEdit className='text-2xl mr-2' />
-              <div className="flex flex-col">
-                <span>User profile updated</span>
-                <span className="text-gray-500 text-sm">1h ago</span>
-              </div>
-            </div>
-            <div className="flex flex-row items-center mt-4">
-              <FaUserEdit className='text-2xl mr-2' />
-              <div className="flex flex-col">
-                <span>User profile updated</span>
-                <span className="text-gray-500 text-sm">1h ago</span>
-              </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="footer flex flex-row justify-between items-center mt-5 border-t pt-4 px-4">
+      <div className="footer h-[4rem] mt-22 flex flex-row justify-between items-center border-t px-4">
         <div className="flex">
           <span className="text-gray-500 text-sm border-r border-gray-300 pr-2">
-            Version 1.0.0
+            Version 2.0.0
           </span>
           <span className="text-gray-500 text-sm pl-2">
-            © 2023 MAIS. All rights reserved.
+            © 2025 MAIS. All rights reserved.
           </span>
         </div>
         <span className="text-gray-500 text-sm">
-          Developed by MAIS Team
+          Developed by Study Simple Team
         </span>
       </div>
+      <Modal
+        open={delOpen}
+        onClose={() => setDelOpen(false)}
+        className="flex items-center justify-center"
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <div className="w-[30%] bg-white p-6 rounded-md shadow-lg">
+          <h2 className="text-2xl font-bold mb-4">Delete Blogs</h2>
+          <input
+            type="text"
+            value={delId}
+            onChange={(e) => setDelId(e.target.value)}
+            placeholder="Enter blog ID to delete"
+            className="w-full border border-gray-300 p-2 rounded-md mb-4"
+          />
+          <div className="flex justify-end space-x-4">
+            <button onClick={() => setDelOpen(false)} className="bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 rounded-md">
+              Cancel
+            </button>
+            <button onClick={handleDel} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md">
+              Delete
+            </button>
+          </div>
+        </div>
+      </Modal>
     </>
   )
 }

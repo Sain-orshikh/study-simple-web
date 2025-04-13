@@ -1,4 +1,5 @@
 import {v2 as cloudinary} from "cloudinary";
+import streamifier from "streamifier";
 import Blog from "../models/blog.model.js";
 
 export const fetchBlog = async (req,res) => {
@@ -26,22 +27,54 @@ export const fetchBlogs = async (req, res) => {
 
 export const createBlog = async (req, res) => {
 	try {
-	  const { title, content, category } = req.body;
-  
-	  if (!title || !content || !category || !req.file) {
-		return res.status(400).json({ success: false, error: "Please provide all fields" });
+	  const { title, content, category, imageUrl: directUrl } = req.body;
+	  console.log("directUrl:", req.file);
+	  console.log("file:", req.file);
+	  if (!req.file && !directUrl) {
+		return res.status(400).json({
+		  success: false,
+		  error: "Please provide an image",
+		});
+	  }
+	  if (!title || !content || !category || (!req.file && !directUrl)) {
+		return res.status(400).json({
+		  success: false,
+		  error: "Please provide all required fields and an image",
+		});
 	  }
   
-	  // Upload to Cloudinary
-	  const uploadedImage = await cloudinary.uploader.upload(req.file.path);
-	  const imageUrl = uploadedImage.secure_url;
+	  let finalImageUrl;
+  
+	  if (req.file) {
+		// Uploaded file via multer (use streamifier + cloudinary)
+		const streamUpload = (buffer) =>
+		  new Promise((resolve, reject) => {
+			const stream = cloudinary.uploader.upload_stream(
+			  { folder: "blog-images" },
+			  (error, result) => {
+				if (result) resolve(result);
+				else reject(error);
+			  }
+			);
+			streamifier.createReadStream(buffer).pipe(stream);
+		  });
+  
+		const uploadedImage = await streamUpload(req.file.buffer);
+		finalImageUrl = uploadedImage.secure_url;
+	  } else if (directUrl) {
+		// User provided a URL string
+		// Optionally re-upload to Cloudinary for CDN benefits
+		const uploadedImage = await cloudinary.uploader.upload(directUrl, {
+		  folder: "blog-images",
+		});
+		finalImageUrl = uploadedImage.secure_url;
+	  }
   
 	  const newBlog = new Blog({
 		title,
 		content,
 		category,
-		image: imageUrl,
-		imageurl: req.file.path, // optional: save local path too
+		image: finalImageUrl,
 	  });
   
 	  await newBlog.save();
@@ -49,7 +82,7 @@ export const createBlog = async (req, res) => {
 	  res.status(201).json({ success: true, data: newBlog });
   
 	} catch (err) {
-	  console.error("Error uploading blog:", err);
+	  console.error("Error uploading blog:", err.message);
 	  res.status(500).json({ success: false, error: "Server error" });
 	}
   };

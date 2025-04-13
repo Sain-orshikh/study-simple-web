@@ -1,6 +1,7 @@
 import express from "express";
 import multer from "multer";
-const upload = multer({ dest: "public/" });
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 import { createBlog, deleteBlog, fetchBlogs, fetchBlog } from "../controller/blog.controller.js";
 
 const router = express.Router();

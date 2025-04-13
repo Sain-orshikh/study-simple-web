@@ -5,6 +5,9 @@ import { MdFormatListBulleted, MdFormatUnderlined, MdOutlineImage } from "react-
 import { AiOutlineOrderedList } from "react-icons/ai";
 import { RiMenu2Fill, RiMenu3Fill, RiMenu5Fill } from "react-icons/ri";
 import { TbBallpenOff, TbLink, TbLinkOff } from "react-icons/tb";
+import Upload from "../../../assets/upload.png";
+import toast, { Toaster } from "react-hot-toast";
+import { MdPreview } from "react-icons/md";
 
 import React, { useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -25,6 +28,8 @@ import FontFamily from "@tiptap/extension-font-family";
 import Gapcursor from "@tiptap/extension-gapcursor";
 import TextStyle from "@tiptap/extension-text-style";
 import { HexColorPicker } from "react-colorful";
+import Preview from "@/components/ui/Preview";
+import { Modal } from "@mui/material";
 
 const fonts = [
   { label: "Inter", value: "Inter" },
@@ -139,15 +144,13 @@ const Editor = () => {
     ],
     content: "<p></p>",
   });
-
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [image, setImage] = useState(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [category, setCategory] = useState('');
-
+  const [category, setCategory] = useState('Others');
   const [imagePreview, setImagePreview] = useState<string | ArrayBuffer | null>(null);
 
-  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
   };
@@ -158,7 +161,14 @@ const Editor = () => {
 
   const handleImageChange = (event) => {
     const file = event.target.files[0]; // Get the first file from the input
-    setImage(file); // Store the file in the state
+    if (file) {
+      setImage(file); // Store the file in the state
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result); // Set the preview to the uploaded image
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -169,14 +179,10 @@ const Editor = () => {
     console.log("Content:", content);
     console.log("Category:", category);
     if (!image || !title || !content || !category) {
-      console.log("Please fill in all fields and select an image.", );
+      toast.error("Please fill in all fields and select an image.");
       return;
     }
-    console.log("Image:", image);
-    console.log("Title:", title);
-    console.log("Content:", content);
-    console.log("Category:", category);
-    // Create a FormData object to send data as multipart/form-data
+
     const formData = new FormData();
     formData.append('image', image); // Append the file to FormData
     formData.append('title', title); // Append the title
@@ -191,12 +197,13 @@ const Editor = () => {
 
       const data = await response.json();
       if (data.success) {
-        console.log('Blog uploaded successfully:', data);
+        toast.success('Blog uploaded successfully!');
       } else {
         console.error('Error uploading blog:', data.error);
       }
     } catch (error) {
       console.error('Error uploading blog:', error);
+      toast.error("Error uploading blog. Don't insert pictures larger than 1mb in content.");
     }
   };
 
@@ -239,14 +246,19 @@ const Editor = () => {
   };
 
   const jsonContent = editor.getJSON();
-  console.log("Editor JSON Content:", jsonContent);
+
+  const handlePreview = () => {
+    setPreviewOpen(true);
+    toast.success("Preview opened!");
+  };
 
   return (
     <div className="border py-4 w-full">
+      <Toaster/>
       <div className="w-[80%] mx-auto my-2 font-bold text-2xl text-start">
         Content
       </div>
-      <div className={`fixed top-0 ml-auto mt-14 border-t border-b border-r z-20 mb-2 flex items-center justify-evenly w-[100%] bg-gray-100 py-1 px-2`}>
+      <div className={`fixed top-0 ml-auto mt-14 border-t border-b border-r z-10 mb-2 flex items-center justify-evenly w-[100%] bg-gray-100 py-1 px-2`}>
         <select
           onChange={(e) => {
             const level = parseInt(e.target.value);
@@ -402,21 +414,39 @@ const Editor = () => {
       <div className="w-[80%] mx-auto mt-3 font-bold text-2xl text-start">
         Cover Image
       </div>
-      <div>
-        <label>Image</label>
+      <label
+        className="flex flex-row justify-center items-center w-[80%] h-[8rem] mx-auto mt-3 border cursor-pointer"
+      >
         <input
           type="file"
           accept="image/*"
           onChange={handleImageChange}
-          required
+          className="hidden"
         />
-      </div>
-      <button
-        onClick={handleSubmit}
-        className="w-[80%] mx-auto mt-3 bg-blue-500 text-white py-2 rounded"
+        <img
+          src={imagePreview || Upload.src} // Use the uploaded image preview or fallback to the default image
+          alt="Preview"
+          className="w-[8rem] h-[8rem]" // Ensure the image covers the container
+        />
+      </label>
+      <div className="w-[80%] mx-auto mt-3 flex justify-center">
+        <button
+          onClick={handleSubmit}
+          className="bg-blue-500 w-[90%] hover:bg-blue-700 cursor-pointer text-white py-2 rounded"
         >
-        Submit
-      </button>
+          Submit
+        </button>
+        <button onClick={handlePreview} className="w-[10%] flex justify-center items-center bg-white text-black border hover:bg-gray-200 cursor-pointer py-2 rounded ml-2">
+          <MdPreview fontSize={25}/>
+        </button>
+      </div>
+        <Modal
+          open={previewOpen}
+          onClose={() => setPreviewOpen(false)}
+          className="flex items-center justify-center w-[90%] h-[90%] mx-auto my-auto"
+        >
+          <Preview blog={{ image: (imagePreview as string) || null, title, content: editor.getHTML(), category }} />
+        </Modal>
     </div>
   );
 };

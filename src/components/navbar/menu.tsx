@@ -46,7 +46,7 @@ const Menu = () => {
           <MdMenu fontSize={35} />
         </button>
           {isOpen && (
-            <div className="absolute top-13 right-0 w-fit-content bg-gray-50 shadow-lg z-10">
+            <div className="absolute top-13 right-0 w-fit-content bg-gray-50 shadow-lg z-20">
               <Dock className='items-end pb-3'>
                 {navItems.map((item, idx) => (
                   <Link key={idx} href={item.path} passHref>
