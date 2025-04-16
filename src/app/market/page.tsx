@@ -1,75 +1,81 @@
+"use client"
+
 import { Navbar } from "@/components/navbar/navbar"
-import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import Image from "next/image"
-import { SearchIcon, ShoppingCartIcon, TagIcon, UserIcon } from "lucide-react"
+import { SearchIcon, ShoppingCartIcon, EditIcon, HelpCircleIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { useState } from "react"
+import { Modal, Box } from "@mui/material"
+import { Toaster } from "react-hot-toast"
+import { ItemCard } from "@/components/market/ItemCard"
+import { useMarketItems } from "@/components/market/useMarketItems"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { MarketplaceGuidelines } from "@/components/market/MarketplaceGuidelines"
+import ListingPreview from "@/components/market/ListingPreview"
+import { CreateListingModal } from "@/components/market/CreateListingModal"
+import { EditListingModal } from "@/components/market/EditListingModal"
+import { SupportTicketModal } from "@/components/market/SupportTicketModal"
+import { ListingIDAlert } from "@/components/market/ListingIDAlert"
 
-export default function MarketPage() {
-  const items = [
-    {
-      id: 1,
-      name: "Calculus Textbook (8th Edition)",
-      category: "Textbooks",
-      price: 45,
-      condition: "Like New",
-      seller: "Alex K.",
-      image: "/placeholder.svg?height=150&width=150",
-      description: "Barely used, no highlights or notes.",
-    },
-    {
-      id: 2,
-      name: "Scientific Calculator (TI-84)",
-      category: "Electronics",
-      price: 65,
-      condition: "Good",
-      seller: "Jamie L.",
-      image: "/placeholder.svg?height=150&width=150",
-      description: "Works perfectly, minor scratches on the screen.",
-    },
-    {
-      id: 3,
-      name: "Chemistry Lab Coat (Size M)",
-      category: "Lab Equipment",
-      price: 15,
-      condition: "New",
-      seller: "Taylor S.",
-      image: "/placeholder.svg?height=150&width=150",
-      description: "Never used, still in original packaging.",
-    },
-    {
-      id: 4,
-      name: "Introduction to Psychology Textbook",
-      category: "Textbooks",
-      price: 30,
-      condition: "Good",
-      seller: "Jordan P.",
-      image: "/placeholder.svg?height=150&width=150",
-      description: "Some highlighting in the first few chapters.",
-    },
-    {
-      id: 5,
-      name: "Laptop Stand",
-      category: "Electronics",
-      price: 20,
-      condition: "Like New",
-      seller: "Casey M.",
-      image: "/placeholder.svg?height=150&width=150",
-      description: "Adjustable height, foldable for easy storage.",
-    },
-    {
-      id: 6,
-      name: "Engineering Drawing Set",
-      category: "Supplies",
-      price: 25,
-      condition: "Good",
-      seller: "Riley B.",
-      image: "/placeholder.svg?height=150&width=150",
-      description: "Complete set with compass, rulers, and protractors.",
-    },
-  ]
+// Create a client
+const queryClient = new QueryClient()
 
-  const categories = ["All", "Textbooks", "Electronics", "Lab Equipment", "Supplies", "Furniture", "Other"]
+function MarketPageContent() {
+  // Modal states
+  const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  
+  // Preview state
+  const [previewListing, setPreviewListing] = useState<any>(null);
+  
+  // Search state
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const conditions = ["New", "Like New", "Good", "Fair", "Poor"];
+  const categories = ["All", "Textbooks", "Electronics", "Lab Equipment", "Supplies", "Furniture", "Other"];
+  const statuses = ["available", "sold", "reserved", "unavailable"];
+
+  const { 
+    items, 
+    isLoading, 
+    isError, 
+    createListing, 
+    isCreatingListing,
+    updateListing,
+    isUpdatingListing,
+    fetchListingById,
+    contactSeller,
+    submitSupportTicket,
+    isSubmittingSupportTicket,
+    // New props for ListingIDAlert
+    createdListingId,
+    showListingIdAlert,
+    handleCloseListingIdAlert
+  } = useMarketItems({
+    category: selectedCategory,
+    search: searchQuery
+  });
+
+  // Modal handlers
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleCategorySelect = (category: string) => {
+    setSelectedCategory(category);
+  };
+
+  const handlePreview = (listing: any) => {
+    setPreviewListing(listing);
+    setPreviewOpen(true);
+  };
+
+  const handlePreviewClose = () => {
+    setPreviewOpen(false);
+  };
 
   return (
     <>
@@ -81,12 +87,27 @@ export default function MarketPage() {
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="relative flex-grow">
               <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <Input placeholder="Search for items..." className="pl-10" />
+              <Input 
+                placeholder="Search for items..." 
+                className="pl-10" 
+                value={searchQuery}
+                onChange={handleSearch}
+              />
             </div>
-            <Button>
-              <ShoppingCartIcon className="h-5 w-5 mr-2" />
-              Sell an Item
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={() => setOpenCreateModal(true)}>
+                <ShoppingCartIcon className="h-5 w-5 mr-2" />
+                Sell an Item
+              </Button>
+              <Button onClick={() => setEditModalOpen(true)} variant="outline">
+                <EditIcon className="h-5 w-5 mr-2" />
+                Edit Listing
+              </Button>
+              <Button onClick={() => setSupportOpen(true)} variant="outline">
+                <HelpCircleIcon className="h-5 w-5 mr-2" />
+                Support
+              </Button>
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-2 mb-8">
@@ -94,71 +115,132 @@ export default function MarketPage() {
               <button
                 key={index}
                 className={`px-4 py-2 rounded-full text-sm ${
-                  index === 0 ? "bg-blue-100 text-blue-800" : "bg-gray-100 hover:bg-gray-200"
+                  category === selectedCategory ? "bg-blue-100 text-blue-800" : "bg-gray-100 hover:bg-gray-200"
                 }`}
+                onClick={() => handleCategorySelect(category)}
               >
                 {category}
               </button>
             ))}
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            {items.map((item) => (
-              <Card key={item.id} className="p-4 hover:shadow-md transition-shadow">
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0">
-                    <Image
-                      src={item.image || "/placeholder.svg"}
-                      alt={item.name}
-                      width={150}
-                      height={150}
-                      className="rounded-md"
-                    />
-                  </div>
-                  <div className="flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-start">
-                        <h2 className="text-lg font-semibold">{item.name}</h2>
-                        <span className="font-bold text-green-600">${item.price}</span>
-                      </div>
-                      <div className="flex items-center text-sm text-gray-500 mt-1">
-                        <TagIcon className="h-4 w-4 mr-1" />
-                        {item.category}
-                      </div>
-                      <div className="flex items-center text-sm text-gray-500 mt-1">
-                        <UserIcon className="h-4 w-4 mr-1" />
-                        {item.seller}
-                      </div>
-                      <p className="text-sm mt-2">{item.description}</p>
-                      <span className="inline-block mt-2 text-xs px-2 py-1 bg-gray-100 rounded">
-                        Condition: {item.condition}
-                      </span>
-                    </div>
-                    <Button size="sm" className="mt-3">
-                      Contact Seller
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          ) : isError ? (
+            <div className="text-center py-12">
+              <p className="text-xl text-red-500">Error loading listings. Please try again later.</p>
+            </div>
+          ) : !items || items.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-xl text-gray-500">
+                {selectedCategory !== "All" 
+                  ? `No items found in the "${selectedCategory}" category.` 
+                  : "No listings found. Be the first to sell an item!"}
+              </p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-6">
+              {items.map((item) => (
+                <ItemCard 
+                  key={item.id} 
+                  item={item} 
+                  onContactClick={contactSeller} 
+                />
+              ))}
+            </div>
+          )}
 
-          <div className="mt-8 p-6 bg-gray-50 rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">Marketplace Guidelines</h2>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>All transactions are between students; the school is not responsible for any issues.</li>
-              <li>Meet in public places on campus for exchanges.</li>
-              <li>Verify the condition of items before completing a purchase.</li>
-              <li>Be honest about the condition of items you&apos;re selling.</li>
-              <li>No prohibited items (see full guidelines for details).</li>
-            </ul>
-            <Button variant="outline" className="mt-4">
-              View Full Guidelines
-            </Button>
+          <div className="mt-8">
+            <MarketplaceGuidelines />
           </div>
         </main>
       </div>
+
+      {/* Create Listing Modal */}
+      <CreateListingModal
+        open={openCreateModal}
+        onClose={() => setOpenCreateModal(false)}
+        onSubmit={createListing}
+        isSubmitting={isCreatingListing}
+        onPreview={handlePreview}
+        categories={categories}
+        conditions={conditions}
+      />
+      
+      {/* Edit Listing Modal */}
+      <EditListingModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        onSubmit={updateListing}
+        isSubmitting={isUpdatingListing}
+        fetchListingById={fetchListingById}
+        categories={categories}
+        conditions={conditions}
+        statuses={statuses}
+      />
+      
+      {/* Support Ticket Modal */}
+      <SupportTicketModal
+        open={supportOpen}
+        onClose={() => setSupportOpen(false)}
+        onSubmit={submitSupportTicket}
+        isSubmitting={isSubmittingSupportTicket}
+      />
+      
+      {/* Preview Modal */}
+      <Modal open={previewOpen} onClose={handlePreviewClose}>
+        <Box sx={{ 
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '90%',
+          maxWidth: '800px',
+          height: '90%',
+          bgcolor: 'background.paper',
+          boxShadow: 24,
+          borderRadius: 1,
+          overflow: 'auto'
+        }}>
+          <div className="flex justify-between items-center p-4 border-b">
+            <h2 className="text-xl font-semibold">Listing Preview</h2>
+            <button 
+              onClick={handlePreviewClose}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          {previewListing && (
+            <ListingPreview listing={previewListing} />
+          )}
+        </Box>
+      </Modal>
+      
+      {/* Listing ID Alert */}
+      {createdListingId && (
+        <ListingIDAlert
+          id={createdListingId}
+          open={showListingIdAlert}
+          onClose={handleCloseListingIdAlert}
+        />
+      )}
+
+      <Toaster />
     </>
-  )
+  );
+}
+
+// Wrap the page with QueryClientProvider
+export default function MarketPage() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <MarketPageContent />
+    </QueryClientProvider>
+  );
 }
 
