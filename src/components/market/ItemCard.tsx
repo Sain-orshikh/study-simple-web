@@ -7,6 +7,7 @@ import { TagIcon, UserIcon, PhoneIcon, MailIcon, CalendarIcon, Clock2Icon, TagsI
 import { useState } from "react"
 import { FaFacebook } from "react-icons/fa"
 import toast from "react-hot-toast"
+import { ContactSellerModal } from "./ContactSellerModal"
 
 export interface MarketItem {
   id: string;
@@ -33,6 +34,7 @@ interface ItemCardProps {
 
 export function ItemCard({ item, onContactClick }: ItemCardProps) {
   const [showContact, setShowContact] = useState(false);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
   
   const handleContactClick = () => {
     setShowContact(!showContact);
@@ -43,12 +45,15 @@ export function ItemCard({ item, onContactClick }: ItemCardProps) {
   };
 
   const handleContactByEmail = () => {
-    if (item.email) {
-      const subject = `Inquiry about your listing: ${item.name}`;
-      const body = `Hello,\n\nI am interested in your listing "${item.name}" on the Student Marketplace.\n\nPlease let me know if it's still available.\n\nThank you!`;
-      window.open(`mailto:${item.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
-      toast.success("Opening email client...");
-    }
+    setContactModalOpen(true);
+  };
+
+  const handleOpenEmailModal = () => {
+    setContactModalOpen(true);
+  };
+
+  const handleCloseEmailModal = () => {
+    setContactModalOpen(false);
   };
 
   const formatDate = (dateString?: string) => {
@@ -186,6 +191,11 @@ export function ItemCard({ item, onContactClick }: ItemCardProps) {
           </div>
         </div>
       </div>
+      <ContactSellerModal 
+        open={contactModalOpen} 
+        onClose={handleCloseEmailModal} 
+        item={item} 
+      />
     </Card>
   );
 }

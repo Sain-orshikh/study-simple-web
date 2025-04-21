@@ -17,6 +17,13 @@ interface SupportTicket {
   message: string;
 }
 
+interface ContactSellerData {
+  itemName: string;
+  buyerEmail: string;
+  sellerEmail?: string;
+  message?: string;
+}
+
 export function useMarketItems(options: FetchMarketItemsOptions = {}) {
   const queryClient = useQueryClient()
   const { category, search } = options
@@ -201,6 +208,37 @@ export function useMarketItems(options: FetchMarketItemsOptions = {}) {
       toast.error("Failed to retrieve contact information. Please try again.")
     }
   })
+
+  // Mutation for sending an email to the seller
+  const sendSellerEmail = useMutation({
+    mutationFn: async (data: ContactSellerData) => {
+      try {
+        const response = await fetch("http://localhost:5000/api/seller/contact", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+        
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.message || "Failed to send email to seller")
+        }
+        
+        return await response.json()
+      } catch (error) {
+        console.error("Error sending email to seller:", error)
+        throw error
+      }
+    },
+    onSuccess: (result) => {
+      toast.success(result.message || "Email sent to seller successfully!")
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to send email to seller. Please try again.")
+    }
+  })
   
   // Handle closing the listing ID alert
   const handleCloseListingIdAlert = () => {
@@ -221,6 +259,8 @@ export function useMarketItems(options: FetchMarketItemsOptions = {}) {
     isContactingSeller: contactSeller.isPending,
     submitSupportTicket: submitSupportTicket.mutate,
     isSubmittingSupportTicket: submitSupportTicket.isPending,
+    sendSellerEmail: sendSellerEmail.mutate,
+    isSendingSellerEmail: sendSellerEmail.isPending,
     // Return state and handlers for the listing ID alert
     createdListingId,
     showListingIdAlert,

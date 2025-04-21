@@ -116,6 +116,9 @@ importers:
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      nodemailer:
+        specifier: ^6.10.1
+        version: 6.10.1
       nodemon:
         specifier: ^3.1.9
         version: 3.1.9
@@ -2261,6 +2264,10 @@ packages:
         optional: true
       sass:
         optional: true
+
+  nodemailer@6.10.1:
+    resolution: {integrity: sha512-Z+iLaBGVaSjbIzQ4pX6XV41HrooLsQ10ZWPUehGmuantvzWoDVBnmsdUcOIDM1t+yPor5pDhVlDESgOMEGxhHA==}
+    engines: {node: '>=6.0.0'}
 
   nodemon@3.1.9:
     resolution: {integrity: sha512-hdr1oIb2p6ZSxu3PB2JWWYS7ZQ0qvaZsc3hK8DR8f02kRzc8rjYmxAIvdz+aYC+8F2IjNaB7HMcSDg8nQpJxyg==}
@@ -5183,6 +5190,8 @@ snapshots:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
+
+  nodemailer@6.10.1: {}
 
   nodemon@3.1.9:
     dependencies:

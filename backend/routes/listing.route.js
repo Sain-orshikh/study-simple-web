@@ -8,7 +8,8 @@ import {
   fetchListings, 
   fetchListing, 
   updateListing,
-  submitSupportTicket
+  submitSupportTicket,
+  contactSeller
 } from "../controller/listing.controller.js";
 
 const router = express.Router();
@@ -19,5 +20,6 @@ router.post("/create", upload.single("image"), createListing);
 router.put("/update/:listingId", upload.single("image"), updateListing);
 router.delete("/delete/:id", deleteListing);
 router.post("/support", submitSupportTicket);
+router.post("/contact-seller", contactSeller);
 
 export default router;

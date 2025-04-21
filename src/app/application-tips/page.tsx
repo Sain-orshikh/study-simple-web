@@ -2,9 +2,79 @@ import { Navbar } from "@/components/navbar/navbar"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { GraduationCapIcon, CheckCircleIcon, XCircleIcon } from "lucide-react"
+import { GraduationCapIcon, CheckCircleIcon, XCircleIcon, DownloadIcon, GlobeIcon, FileIcon } from "lucide-react"
+import Link from "next/link"
+import { DownloadableFiles } from "@/components/ui/DownloadableFiles"
 
 export default function ApplicationTipsPage() {
+  // Define the application resources
+  const applicationResources = [
+    {
+      name: "Introduction to Application Process",
+      path: "/1.Introduction_to_application.pptx",
+      description: "Overview of the college application process and timeline",
+      type: "PPTX"
+    },
+    {
+      name: "Resume Template - Professional",
+      path: "/resume-template.docx",
+      description: "Clean and professional resume template for college applications",
+      type: "DOCX"
+    },
+    {
+      name: "Personal Statement Guide",
+      path: "#",
+      description: "Tips and examples for writing an effective personal statement",
+      type: "PDF"
+    },
+    {
+      name: "Financial Aid Application Tips",
+      path: "#",
+      description: "Guide to maximizing your financial aid opportunities",
+      type: "PPTX"
+    }
+  ];
+
+  // Define the study abroad presentations
+  const countryPresentations = [
+    {
+      name: "Study in the United States",
+      path: "#",
+      description: "Overview of the US education system and application process",
+      type: "PPTX"
+    },
+    {
+      name: "Study in the United Kingdom",
+      path: "#",
+      description: "Guide to UK universities and the UCAS application system",
+      type: "PPTX"
+    },
+    {
+      name: "Study in Canada",
+      path: "#",
+      description: "Information about Canadian universities and study permits",
+      type: "PPTX"
+    },
+    {
+      name: "Study in Australia",
+      path: "#",
+      description: "Overview of Australian universities and student visas",
+      type: "PPTX"
+    },
+    {
+      name: "Study in Germany",
+      path: "#",
+      description: "Guide to German universities and the free education system",
+      type: "PNG"
+    },
+    {
+      name: "Study in Japan",
+      path: "#",
+      description: "Information about Japanese universities and scholarship opportunities",
+      type: "PPTX"
+    }
+  ];
+
   return (
     <>
       <Navbar />
@@ -165,7 +235,9 @@ export default function ApplicationTipsPage() {
                   <li>Employers (yours or your parents&apos;)</li>
                 </ul>
 
-                <Button>Scholarship Database</Button>
+                <Link href="https://www.fastweb.com/" target="_blank" rel="noopener noreferrer">
+                  <Button>Scholarship Database</Button>
+                </Link>
               </Card>
 
               <Card className="p-6">
@@ -251,8 +323,6 @@ export default function ApplicationTipsPage() {
                     </p>
                   </div>
                 </div>
-
-                <Button className="mt-4">Download Resume Template</Button>
               </Card>
 
               <Card className="p-6">
@@ -287,13 +357,17 @@ export default function ApplicationTipsPage() {
             </TabsContent>
           </Tabs>
 
-          <div className="mt-8 p-6 bg-blue-50 rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">Need Personalized Help?</h2>
-            <p className="mb-4">
-              Our team offers one-on-one application review sessions to help you put your best foot forward. Schedule a
-              meeting with one of our advisors for personalized feedback.
-            </p>
-            <Button>Schedule a Session</Button>
+          {/* Application Resources Section */}
+          <div className="mt-8 space-y-8">
+            <DownloadableFiles 
+              files={applicationResources} 
+              title="Application Resources & Templates" 
+            />
+            
+            <DownloadableFiles 
+              files={countryPresentations} 
+              title="Study Abroad Destination Guides" 
+            />
           </div>
         </main>
       </div>

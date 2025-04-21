@@ -1,6 +1,7 @@
 import {v2 as cloudinary} from "cloudinary";
 import streamifier from "streamifier";
 import Listing from "../models/listing.model.js";
+import { sendEmail } from "../utils/emailService.js";
 
 export const fetchListing = async (req,res) => {
     const listingId = req.params.id;
@@ -234,6 +235,55 @@ export const submitSupportTicket = async (req, res) => {
     
   } catch (error) {
     console.error("Error submitting support ticket:", error.message);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+};
+
+export const contactSeller = async (req, res) => {
+  try {
+    const { itemName, buyerEmail, sellerEmail, message } = req.body;
+    
+    // Validate required fields
+    if (!itemName || !buyerEmail || !sellerEmail) {
+      return res.status(400).json({
+        success: false,
+        error: "Please provide all required fields"
+      });
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(buyerEmail) || !emailRegex.test(sellerEmail)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid email format"
+      });
+    }
+
+    // Send email to seller using our email service
+    const emailText = message || `A buyer (${buyerEmail}) is interested in your item "${itemName}". Please contact them to discuss further.`;
+    const emailHtml = `
+      <h2>You have received interest in your marketplace listing</h2>
+      <p>A buyer with email <strong>${buyerEmail}</strong> is interested in your item <strong>"${itemName}"</strong>.</p>
+      <p>${message || "Please contact them to discuss further details about your item."}</p>
+      <hr>
+      <p style="color: #666; font-size: 12px;">This is an automated message from the Student Marketplace. Please do not reply to this email.</p>
+    `;
+    
+    await sendEmail({
+      to: sellerEmail,
+      subject: `New interest in your listing: ${itemName}`,
+      text: emailText,
+      html: emailHtml
+    });
+    
+    res.status(200).json({
+      success: true,
+      message: "Interest notification sent to the seller."
+    });
+    
+  } catch (error) {
+    console.error("Error contacting seller:", error.message);
     res.status(500).json({ success: false, error: "Server error" });
   }
 };
