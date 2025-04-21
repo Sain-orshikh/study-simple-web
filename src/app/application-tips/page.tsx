@@ -7,73 +7,108 @@ import Link from "next/link"
 import { DownloadableFiles } from "@/components/ui/DownloadableFiles"
 
 export default function ApplicationTipsPage() {
-  // Define the application resources
+  // Define the application resources with categories
   const applicationResources = [
     {
       name: "Introduction to Application Process",
       path: "/1.Introduction_to_application.pptx",
       description: "Overview of the college application process and timeline",
-      type: "PPTX"
-    },
-    {
-      name: "Resume Template - Professional",
-      path: "/resume-template.docx",
-      description: "Clean and professional resume template for college applications",
-      type: "DOCX"
+      type: "PPTX",
+      category: "Application Guides"
     },
     {
       name: "Personal Statement Guide",
       path: "#",
       description: "Tips and examples for writing an effective personal statement",
-      type: "PDF"
+      type: "PDF",
+      category: "Application Guides"
     },
     {
       name: "Financial Aid Application Tips",
       path: "#",
       description: "Guide to maximizing your financial aid opportunities",
-      type: "PPTX"
+      type: "PPTX",
+      category: "Financial Aid"
+    },
+    {
+      name: "Resume Template - Professional",
+      path: "/resume-template.docx",
+      description: "Clean and professional resume template for college applications",
+      type: "DOCX",
+      category: "Templates"
+    },
+    {
+      name: "Cover Letter Template",
+      path: "#",
+      description: "Template for writing effective cover letters",
+      type: "DOCX",
+      category: "Templates"
+    },
+    {
+      name: "Scholarship Application Checklist",
+      path: "#",
+      description: "Comprehensive checklist for scholarship applications",
+      type: "PDF",
+      category: "Financial Aid"
     }
   ];
 
-  // Define the study abroad presentations
+  // Define the study abroad presentations with categories
   const countryPresentations = [
     {
       name: "Study in the United States",
       path: "#",
       description: "Overview of the US education system and application process",
-      type: "PPTX"
-    },
-    {
-      name: "Study in the United Kingdom",
-      path: "#",
-      description: "Guide to UK universities and the UCAS application system",
-      type: "PPTX"
+      type: "PPTX",
+      category: "North America"
     },
     {
       name: "Study in Canada",
       path: "#",
       description: "Information about Canadian universities and study permits",
-      type: "PPTX"
+      type: "PPTX",
+      category: "North America"
     },
     {
-      name: "Study in Australia",
+      name: "Study in the United Kingdom",
       path: "#",
-      description: "Overview of Australian universities and student visas",
-      type: "PPTX"
+      description: "Guide to UK universities and the UCAS application system",
+      type: "PPTX",
+      category: "Europe"
     },
     {
       name: "Study in Germany",
       path: "#",
       description: "Guide to German universities and the free education system",
-      type: "PNG"
+      type: "PNG",
+      category: "Europe"
+    },
+    {
+      name: "Study in Australia",
+      path: "#",
+      description: "Overview of Australian universities and student visas",
+      type: "PPTX",
+      category: "Asia-Pacific"
     },
     {
       name: "Study in Japan",
       path: "#",
       description: "Information about Japanese universities and scholarship opportunities",
-      type: "PPTX"
+      type: "PPTX",
+      category: "Asia-Pacific"
+    },
+    {
+      name: "Study in Singapore",
+      path: "#",
+      description: "Guide to universities in Singapore and application process",
+      type: "PDF",
+      category: "Asia-Pacific"
     }
   ];
+
+  // Predefined categories for better organization
+  const resourceCategories = ["Application Guides", "Templates", "Financial Aid"];
+  const destinationCategories = ["North America", "Europe", "Asia-Pacific", "Africa", "South America"];
 
   return (
     <>
@@ -357,16 +392,18 @@ export default function ApplicationTipsPage() {
             </TabsContent>
           </Tabs>
 
-          {/* Application Resources Section */}
+          {/* Application Resources Section - Now with categorized accordion and search */}
           <div className="mt-8 space-y-8">
             <DownloadableFiles 
               files={applicationResources} 
               title="Application Resources & Templates" 
+              categories={resourceCategories}
             />
             
             <DownloadableFiles 
               files={countryPresentations} 
               title="Study Abroad Destination Guides" 
+              categories={destinationCategories}
             />
           </div>
         </main>

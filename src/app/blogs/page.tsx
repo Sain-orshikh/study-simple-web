@@ -2,15 +2,19 @@
 
 import { Navbar } from "@/components/navbar/navbar"
 import { useQuery } from '@tanstack/react-query';
-import { useState } from "react"
-import { Grid } from "@mui/material"
+import { useState, useEffect } from "react"
 import BlogCard from "@/components/ui/BlogCard"
 import { FaPenClip } from "react-icons/fa6";
 import { AnimatedBackground } from "@/components/ui/animatedbg";
+import { SearchIcon, NewspaperIcon, TrendingUpIcon, FolderIcon, FilterIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 export default function BlogsPage() {
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [visibleBlogs, setVisibleBlogs] = useState(12);
 
-  const {data:blogs} = useQuery({
+  const {data:blogs, isLoading, isError} = useQuery({
     queryKey: ['blogs'],
     queryFn: async () => {
       const res = await fetch("http://localhost:5000/api/blogs/fetch");
@@ -21,21 +25,34 @@ export default function BlogsPage() {
     retry: 1,
   });
   
-  const Blogs = blogs?.data;
+  const allBlogs = blogs?.data || [];
 
-  console.log("Blogs data:", Blogs);
-  const [visibleBlogs, setVisibleBlogs] = useState(12);
+  // Enhanced filter function to properly handle categories
+  const filteredBlogs = allBlogs.filter(blog => {
+    // Handle category matching correctly, accounting for case sensitivity
+    const matchesCategory = selectedCategory === "All" || 
+      blog.category?.toLowerCase() === selectedCategory.toLowerCase();
+    
+    // Handle search query
+    const matchesSearch = searchQuery === "" || 
+      blog.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      blog.content?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    return matchesCategory && matchesSearch;
+  });
+
+  // Get displayed blogs based on current filters and pagination
+  const displayedBlogs = filteredBlogs.slice(0, visibleBlogs);
 
   const handleLoadMore = () => {
-    setVisibleBlogs((prevNum: number) => prevNum + 12);
+    setVisibleBlogs((prevNum) => prevNum + 9);
   };
 
-  let displayedBlogs = [];
-
-
-  if(Blogs){
-    displayedBlogs = [...Blogs].slice(0, visibleBlogs);
-  }
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    // Reset pagination when changing category
+    setVisibleBlogs(12);
+  };
   
   const categories = [
     "All",
@@ -45,77 +62,193 @@ export default function BlogsPage() {
     "Mental Health",
     "Technology",
     "Others"
-  ]
+  ];
+
+  // Featured blogs (just taking first 3 blogs or fewer if not available)
+  const featuredBlogs = allBlogs.slice(0, Math.min(3, allBlogs.length));
 
   return (
     <>
       <Navbar />
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
         <main className="space-y-8">
-          <h1 className="text-4xl font-bold mb-6">
-            Blogs
-            <FaPenClip className="inline-block ml-2 text-blue-500" size={30} />
-          </h1>
-          <div className="py-3 border-b border-t border-gray-300 mb-4 text-start text-gray-600">
-            Here, you can find interesting blogs😊
+          {/* Header section */}
+          <div>
+            <h1 className="text-4xl font-bold mb-2 flex items-center">
+              <NewspaperIcon className="mr-3 text-blue-500" size={30} />
+              Blogs
+              <span className="relative ml-2 inline-block">
+                <FaPenClip className="inline-block text-blue-500" size={20} />
+                <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500 animate-ping"></span>
+                <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-red-500"></span>
+              </span>
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 text-lg">
+              Discover insightful articles and stories shared by our community
+            </p>
           </div>
-          <div className="flex flex-wrap gap-2 mb-8 border-b border-gray-300 pb-4">
-            <AnimatedBackground
-              defaultValue='All'
-              className='rounded-lg bg-gray-300 dark:bg-zinc-700'
-              transition={{
-                ease: 'easeInOut',
-                duration: 0.2,
-              }}
-            >
-              {categories.map((label, index) => {
-                return (
-                  <button
-                    key={index}
-                    data-id={label}
-                    type='button'
-                    aria-label={`${label} view`}
-                    className='inline-flex px-4 py-2 rounded-full items-center bg-gray-100 justify-center text-center text-zinc-800 transition-transform active:scale-[0.98] dark:text-zinc-50'
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </AnimatedBackground>
-            {/*categories.map((category, index) => (
-              <button
-                key={index}
-                className={`px-4 py-2 rounded-full text-sm ${
-                  index === 0 ? "bg-blue-100 text-blue-800" : "bg-gray-100 hover:bg-gray-200"
-                }`}
-              >
-                {category}
-              </button>
-            ))*/}
-          </div>
-          {Blogs && (
-          <Grid container columnSpacing={4} rowSpacing={2} columns={12} >
-                  {displayedBlogs.map((blog) => (
-                  <Grid 
-                    size={{ xs: 12, sm: 4 }}
-                    key={blog._id}
-                    className="mx-auto"
-                  >
+
+          {/* Featured blogs section - Desktop only */}
+          {featuredBlogs.length > 0 && (
+            <div className="hidden md:block rounded-xl overflow-hidden bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 p-6 shadow-md border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center mb-4">
+                <TrendingUpIcon className="mr-2 text-purple-600 dark:text-purple-400" size={20} />
+                <h2 className="text-xl font-semibold">Featured Articles</h2>
+              </div>
+              <div className="grid grid-cols-3 gap-6">
+                {featuredBlogs.map((blog) => (
+                  <div key={`featured-${blog._id}`} className="transform transition-all duration-300 hover:scale-105">
                     <BlogCard blog={blog} isPreview={false} />
-                  </Grid>
-                  ))}
-                </Grid>
-          )}
-          {Blogs && displayedBlogs.length < Blogs.length && (
-            <div className="flex justify-center mt-4">
-              <button
-                onClick={handleLoadMore}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Load More
-              </button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
+
+          {/* Search and filter section */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
+              {/* Search input */}
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+                  <SearchIcon size={18} />
+                </div>
+                <Input
+                  type="text"
+                  placeholder="Search blogs..."
+                  className="pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              
+              {/* Category dropdown for mobile */}
+              <div className="md:hidden w-full">
+                <select 
+                  value={selectedCategory}
+                  onChange={(e) => handleCategoryChange(e.target.value)}
+                  className="w-full p-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"
+                >
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            
+            {/* Category filters - Desktop */}
+            <div className="hidden md:block mt-4">
+              <div className="flex items-center mb-2">
+                <FilterIcon size={16} className="mr-2 text-gray-500" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filter by category:</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    type="button"
+                    aria-label={`${category} view`}
+                    aria-pressed={selectedCategory === category}
+                    className={`
+                      inline-flex px-4 py-2 rounded-full items-center justify-center text-center transition-all
+                      ${category === "All" ? "font-semibold" : ""} 
+                      ${selectedCategory === category 
+                        ? category === "All"
+                          ? 'bg-purple-600 text-white ring-2 ring-purple-300 dark:ring-purple-900 shadow-md' 
+                          : 'bg-blue-500 text-white shadow-md' 
+                        : 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
+                      }
+                    `}
+                    onClick={() => handleCategoryChange(category)}
+                  >
+                    {category === "All" ? (
+                      <>
+                        <FolderIcon size={14} className="mr-1" />
+                        {category}
+                      </>
+                    ) : (
+                      category
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Display category info */}
+          {selectedCategory !== "All" && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+              <p className="text-blue-800 dark:text-blue-200 flex items-center">
+                <FilterIcon size={16} className="mr-2" />
+                Showing blogs in category: <span className="font-bold ml-2">{selectedCategory}</span>
+                <button 
+                  onClick={() => handleCategoryChange("All")} 
+                  className="ml-auto text-sm bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full hover:bg-blue-300 dark:hover:bg-blue-700"
+                >
+                  Clear filter
+                </button>
+              </p>
+            </div>
+          )}
+
+          {/* Blog listing section */}
+          <div>
+            {isLoading ? (
+              <div className="flex justify-center p-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+              </div>
+            ) : isError ? (
+              <div className="text-center p-8 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                <p className="text-red-500 dark:text-red-400">Failed to load blogs. Please try again later.</p>
+              </div>
+            ) : displayedBlogs.length === 0 ? (
+              <div className="text-center p-8 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                <p className="text-gray-500 dark:text-gray-400">
+                  No blogs found {selectedCategory !== "All" && `in category "${selectedCategory}"`} 
+                  {searchQuery && ` matching "${searchQuery}"`}
+                </p>
+                {(selectedCategory !== "All" || searchQuery) && (
+                  <button 
+                    onClick={() => {
+                      setSelectedCategory("All");
+                      setSearchQuery("");
+                    }}
+                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 text-sm"
+                  >
+                    Reset filters
+                  </button>
+                )}
+              </div>
+            ) : (
+              <>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                  Showing {displayedBlogs.length} of {filteredBlogs.length} blogs
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {displayedBlogs.map((blog) => (
+                    <div key={blog._id}>
+                      <BlogCard blog={blog} isPreview={false} />
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Load more button */}
+            {filteredBlogs.length > visibleBlogs && (
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={handleLoadMore}
+                  className="px-6 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 shadow-md hover:shadow-lg transition-all flex items-center"
+                >
+                  <span>Load More</span>
+                  <span className="ml-2">•••</span>
+                </button>
+              </div>
+            )}
+          </div>
         </main>
       </div>
     </>

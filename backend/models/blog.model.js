@@ -1,5 +1,16 @@
 import mongoose from "mongoose";
 
+const commentSchema = new mongoose.Schema({
+    content: {
+        type: String,
+        required: true,
+    },
+    author: {
+        type: String,
+        default: "Anonymous",
+    }
+}, { timestamps: true });
+
 const blogSchema = new mongoose.Schema({
     title:{
         type: String,
@@ -25,7 +36,15 @@ const blogSchema = new mongoose.Schema({
         type: String,
         default: "",
     },
-
+    author:{
+        type: String,
+        default: "Anonymous",
+    },
+    likes:{
+        type: Number,
+        default: 0,
+    },
+    comments: [commentSchema]
 },{timestamps: true});
 
 const Blog = mongoose.model("Blog", blogSchema);

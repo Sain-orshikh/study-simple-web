@@ -27,7 +27,7 @@ export const fetchBlogs = async (req, res) => {
 
 export const createBlog = async (req, res) => {
 	try {
-	  const { title, content, category, imageUrl: directUrl } = req.body;
+	  const { title, content, category, imageUrl: directUrl, author } = req.body;
 	  console.log("directUrl:", req.file);
 	  console.log("file:", req.file);
 	  if (!req.file && !directUrl) {
@@ -75,6 +75,7 @@ export const createBlog = async (req, res) => {
 		content,
 		category,
 		image: finalImageUrl,
+		author: author || "Anonymous",
 	  });
   
 	  await newBlog.save();
@@ -101,4 +102,128 @@ export const deleteBlog = async (req, res) => {
 		console.log("error in deleting blog:", error);
 		res.status(500).json({error: "Server Error"});
 	}
+};
+
+// New controller methods for likes and comments
+
+export const likeBlog = async (req, res) => {
+    try {
+        const blogId = req.params.id;
+        
+        const blog = await Blog.findById(blogId);
+        if(!blog) return res.status(404).json({error: "Blog not found"});
+        
+        // Increment likes
+        blog.likes = (blog.likes || 0) + 1;
+        await blog.save();
+        
+        res.status(200).json({ 
+            success: true, 
+            likes: blog.likes,
+            message: "Blog liked successfully" 
+        });
+    } catch (error) {
+        console.log("Error liking blog:", error.message);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
+// New controller method for unliking a blog
+export const unlikeBlog = async (req, res) => {
+    try {
+        const blogId = req.params.id;
+        
+        const blog = await Blog.findById(blogId);
+        if(!blog) return res.status(404).json({error: "Blog not found"});
+        
+        // Decrement likes, but ensure it doesn't go below 0
+        blog.likes = Math.max(0, (blog.likes || 0) - 1);
+        await blog.save();
+        
+        res.status(200).json({ 
+            success: true, 
+            likes: blog.likes,
+            message: "Blog unliked successfully" 
+        });
+    } catch (error) {
+        console.log("Error unliking blog:", error.message);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
+// New controller method for disliking a blog (which also removes a like if it exists)
+export const dislikeBlog = async (req, res) => {
+    try {
+        const blogId = req.params.id;
+        
+        const blog = await Blog.findById(blogId);
+        if(!blog) return res.status(404).json({error: "Blog not found"});
+        
+        // If there are likes, decrement by 1 (assuming user previously liked)
+        if (blog.likes > 0) {
+            blog.likes = blog.likes - 1;
+        }
+        
+        await blog.save();
+        
+        res.status(200).json({ 
+            success: true, 
+            likes: blog.likes,
+            message: "Blog disliked successfully" 
+        });
+    } catch (error) {
+        console.log("Error disliking blog:", error.message);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
+export const addComment = async (req, res) => {
+    try {
+        const blogId = req.params.id;
+        const { content, author } = req.body;
+        
+        if(!content) {
+            return res.status(400).json({
+                success: false,
+                error: "Comment content is required"
+            });
+        }
+        
+        const blog = await Blog.findById(blogId);
+        if(!blog) return res.status(404).json({error: "Blog not found"});
+        
+        // Add new comment
+        blog.comments.push({
+            content,
+            author: author || "Anonymous"
+        });
+        
+        await blog.save();
+        
+        res.status(201).json({
+            success: true,
+            comment: blog.comments[blog.comments.length - 1],
+            message: "Comment added successfully"
+        });
+    } catch (error) {
+        console.log("Error adding comment:", error.message);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
+export const getComments = async (req, res) => {
+    try {
+        const blogId = req.params.id;
+        
+        const blog = await Blog.findById(blogId);
+        if(!blog) return res.status(404).json({error: "Blog not found"});
+        
+        res.status(200).json({
+            success: true,
+            comments: blog.comments
+        });
+    } catch (error) {
+        console.log("Error fetching comments:", error.message);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
 };
