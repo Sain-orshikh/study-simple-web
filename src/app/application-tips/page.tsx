@@ -17,98 +17,105 @@ export default function ApplicationTipsPage() {
       category: "Application Guides"
     },
     {
-      name: "Personal Statement Guide",
-      path: "#",
-      description: "Tips and examples for writing an effective personal statement",
+      name: "What is Holistic Admission",
+      path: "/2.what_is_holistic_admission.pdf",
+      description: "Understanding how colleges evaluate applications beyond grades and test scores",
       type: "PDF",
       category: "Application Guides"
     },
     {
-      name: "Financial Aid Application Tips",
-      path: "#",
-      description: "Guide to maximizing your financial aid opportunities",
-      type: "PPTX",
-      category: "Financial Aid"
-    },
-    {
-      name: "Resume Template - Professional",
-      path: "/resume-template.docx",
-      description: "Clean and professional resume template for college applications",
-      type: "DOCX",
-      category: "Templates"
-    },
-    {
-      name: "Cover Letter Template",
-      path: "#",
-      description: "Template for writing effective cover letters",
-      type: "DOCX",
-      category: "Templates"
-    },
-    {
-      name: "Scholarship Application Checklist",
-      path: "#",
-      description: "Comprehensive checklist for scholarship applications",
+      name: "Planning the Application Process",
+      path: "/3.planning_the_application_process.pdf",
+      description: "Step-by-step guide to planning your college application journey",
       type: "PDF",
-      category: "Financial Aid"
+      category: "Application Guides"
+    },
+    {
+      name: "Common App Overview",
+      path: "/4.Common app.pdf",
+      description: "Introduction to the Common Application platform used by many colleges",
+      type: "PDF",
+      category: "Application Guides"
+    },
+    {
+      name: "How to Fill the Common App",
+      path: "/5.howtofillCommonapp.pdf",
+      description: "Detailed instructions for completing the Common Application correctly",
+      type: "PDF",
+      category: "Application Guides"
+    },
+    {
+      name: "Extracurricular Activities Guide",
+      path: "/6.Extracurriculars.pdf",
+      description: "How to highlight your extracurricular activities effectively in applications",
+      type: "PDF",
+      category: "Application Tips"
+    },
+    {
+      name: "How to Choose the Right School",
+      path: "/7.how_to_choose_the_right_school.pdf",
+      description: "Factors to consider when selecting which colleges to apply to",
+      type: "PDF",
+      category: "Application Tips"
     }
   ];
 
   // Define the study abroad presentations with categories
   const countryPresentations = [
     {
-      name: "Study in the United States",
-      path: "#",
-      description: "Overview of the US education system and application process",
-      type: "PPTX",
-      category: "North America"
-    },
-    {
-      name: "Study in Canada",
-      path: "#",
-      description: "Information about Canadian universities and study permits",
-      type: "PPTX",
-      category: "North America"
-    },
-    {
-      name: "Study in the United Kingdom",
-      path: "#",
-      description: "Guide to UK universities and the UCAS application system",
-      type: "PPTX",
-      category: "Europe"
-    },
-    {
-      name: "Study in Germany",
-      path: "#",
-      description: "Guide to German universities and the free education system",
-      type: "PNG",
-      category: "Europe"
-    },
-    {
       name: "Study in Australia",
-      path: "#",
-      description: "Overview of Australian universities and student visas",
-      type: "PPTX",
+      path: "/Australia.pdf",
+      description: "Overview of Australian universities, study programs, and student visa requirements",
+      type: "PDF",
       category: "Asia-Pacific"
+    },
+    {
+      name: "Study in China",
+      path: "/China.pdf",
+      description: "Guide to Chinese universities, scholarship opportunities, and cultural experiences",
+      type: "PDF",
+      category: "Asia-Pacific"
+    },
+    {
+      name: "Study in France",
+      path: "/France .pdf",
+      description: "Information about French higher education system and admission requirements",
+      type: "PDF",
+      category: "Europe"
+    },
+    {
+      name: "Study in Hungary",
+      path: "/Hungary.pdf",
+      description: "Guide to Hungarian universities and student life in Hungary",
+      type: "PDF",
+      category: "Europe"
+    },
+    {
+      name: "Study in Italy",
+      path: "/Italy .pdf",
+      description: "Overview of Italian education system, universities, and application process",
+      type: "PDF",
+      category: "Europe"
     },
     {
       name: "Study in Japan",
-      path: "#",
-      description: "Information about Japanese universities and scholarship opportunities",
-      type: "PPTX",
+      path: "/Japan.pdf",
+      description: "Information about Japanese universities, language requirements, and scholarship opportunities",
+      type: "PDF",
       category: "Asia-Pacific"
     },
     {
-      name: "Study in Singapore",
-      path: "#",
-      description: "Guide to universities in Singapore and application process",
+      name: "Study in Netherlands",
+      path: "/Netherlands .pdf",
+      description: "Guide to Dutch universities, programs taught in English, and student life",
       type: "PDF",
-      category: "Asia-Pacific"
+      category: "Europe"
     }
   ];
 
   // Predefined categories for better organization
-  const resourceCategories = ["Application Guides", "Templates", "Financial Aid"];
-  const destinationCategories = ["North America", "Europe", "Asia-Pacific", "Africa", "South America"];
+  const resourceCategories = ["Application Guides", "Application Tips"];
+  const destinationCategories = ["Europe", "Asia-Pacific"];
 
   return (
     <>

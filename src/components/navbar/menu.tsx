@@ -1,8 +1,7 @@
 "use client"
 import Link from "next/link";
-import { MdMenu } from "react-icons/md";
-
-import React, {useState} from 'react'
+import { MdMenu, MdClose } from "react-icons/md";
+import React, { useState, useEffect, useRef } from 'react'
 
 import {
   BookOpen,
@@ -17,51 +16,76 @@ import {
   Newspaper,
 } from 'lucide-react';
 
-import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
-
 const Menu = () => {
-
   const navItems = [
-    { path: '/', label: 'Home', icon: <HomeIcon className='h-full w-full text-neutral-600 dark:text-neutral-300' /> },
-    { path: '/blogs', label: 'Blogs', icon: <Newspaper className='h-full w-full text-neutral-600 dark:text-neutral-300' /> },
-    { path: '/studies', label: 'Studies', icon: <BookOpen className='h-full w-full text-neutral-600 dark:text-neutral-300' /> },
-    { path: '/study-tools', label: 'Study Tools', icon: <Brain className='h-full w-full text-neutral-600 dark:text-neutral-300' /> },
-    { path: '/about-us', label: 'About Us', icon: <Users className='h-full w-full text-neutral-600 dark:text-neutral-300' /> },
-    { path: '/clubs', label: 'Clubs', icon: <BookMarked className='h-full w-full text-neutral-600 dark:text-neutral-300' /> },
-    { path: '/podcasts', label: 'Podcasts', icon: <Podcast className='h-full w-full text-neutral-600 dark:text-neutral-300' /> },
-    { path: '/application-tips', label: 'Application Tips', icon: <Lightbulb className='h-full w-full text-neutral-600 dark:text-neutral-300' /> },
-    { path: '/market', label: 'Market', icon: <Store className='h-full w-full text-neutral-600 dark:text-neutral-300' /> },
-    { path: '/others', label: 'Others', icon: <MoreHorizontal className='h-full w-full text-neutral-600 dark:text-neutral-300' /> },
+    { path: '/', label: 'Home', icon: <HomeIcon className='w-5 h-5 md:w-6 md:h-6 text-neutral-600 dark:text-neutral-300' /> },
+    { path: '/blogs', label: 'Blogs', icon: <Newspaper className='w-5 h-5 md:w-6 md:h-6 text-neutral-600 dark:text-neutral-300' /> },
+    { path: '/studies', label: 'Studies', icon: <BookOpen className='w-5 h-5 md:w-6 md:h-6 text-neutral-600 dark:text-neutral-300' /> },
+    { path: '/study-tools', label: 'Study Tools', icon: <Brain className='w-5 h-5 md:w-6 md:h-6 text-neutral-600 dark:text-neutral-300' /> },
+    { path: '/about-us', label: 'About Us', icon: <Users className='w-5 h-5 md:w-6 md:h-6 text-neutral-600 dark:text-neutral-300' /> },
+    { path: '/clubs', label: 'Clubs', icon: <BookMarked className='w-5 h-5 md:w-6 md:h-6 text-neutral-600 dark:text-neutral-300' /> },
+    { path: '/podcasts', label: 'Podcasts', icon: <Podcast className='w-5 h-5 md:w-6 md:h-6 text-neutral-600 dark:text-neutral-300' /> },
+    { path: '/application-tips', label: 'Application Tips', icon: <Lightbulb className='w-5 h-5 md:w-6 md:h-6 text-neutral-600 dark:text-neutral-300' /> },
+    { path: '/market', label: 'Market', icon: <Store className='w-5 h-5 md:w-6 md:h-6 text-neutral-600 dark:text-neutral-300' /> },
+    { path: '/others', label: 'Others', icon: <MoreHorizontal className='w-5 h-5 md:w-6 md:h-6 text-neutral-600 dark:text-neutral-300' /> },
   ];
 
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
   const toggleMenu = () => {
     setIsOpen(!isOpen);
-  }
+  };
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Close menu when route changes (e.g., when a link is clicked)
+  useEffect(() => {
+    setIsOpen(false);
+  }, []);
 
   return (
-    <>
-      <div className="relative">
-        <button className={`flex items-center justify-center w-10 h-10 rounded-full hover:cursor-pointer transition duration-300 ${isOpen ? `rotate-90` : `rotate-0`}`} onClick={toggleMenu}>
-          <MdMenu fontSize={35} />
-        </button>
-          {isOpen && (
-            <div className="absolute top-13 right-0 w-fit-content bg-gray-50 shadow-lg z-20">
-              <Dock className='items-end pb-3'>
-                {navItems.map((item, idx) => (
-                  <Link key={idx} href={item.path} passHref>
-                  <DockItem className='aspect-square rounded-full bg-gray-200 dark:bg-neutral-800'>
-                    <DockLabel>{item.label}</DockLabel>
-                    <DockIcon>{item.icon}</DockIcon>
-                  </DockItem>
-                </Link>
-                ))}
-              </Dock>
-            </div>
-          )}
-      </div>
-    </>
-  )
-}
+    <div className="relative" ref={menuRef}>
+      <button 
+        className={`flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 transition duration-300 ${isOpen ? 'bg-gray-100' : ''}`} 
+        onClick={toggleMenu}
+        aria-label="Toggle menu"
+        aria-expanded={isOpen}
+      >
+        {isOpen ? <MdClose fontSize={28} /> : <MdMenu fontSize={28} />}
+      </button>
+      
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-2 w-60 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+          <div className="py-2">
+            {navItems.map((item, idx) => (
+              <Link 
+                key={idx} 
+                href={item.path} 
+                className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100 transition duration-150"
+                onClick={() => setIsOpen(false)}
+              >
+                <span className="mr-3">{item.icon}</span>
+                <span>{item.label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
-export default Menu
+export default Menu;
