@@ -1,41 +1,45 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Create reusable transporter object using SMTP transport
-const createTransporter = () => {
-  return nodemailer.createTransport({
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.EMAIL_PORT || '587'),
-    secure: process.env.EMAIL_SECURE === 'true', // true for 465, false for other ports
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD
-    }
-  });
+// Initialize Resend with API key
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Function to log the email configuration for debugging purposes
+const logEmailConfig = () => {
+  console.log('Resend Email Configuration:');
+  console.log(`- API Key: ${process.env.RESEND_API_KEY ? 'Set (hidden)' : 'Not set'}`);
+  console.log(`- From Email: ${process.env.EMAIL_FROM}`);
 };
 
-// Function to send an email
+// Function to send an email using Resend
 export const sendEmail = async (options) => {
   try {
-    const transporter = createTransporter();
+    // Log configuration for debugging
+    logEmailConfig();
     
-    const mailOptions = {
-      from: process.env.EMAIL_FROM || 'marketplace@example.com',
+    console.log('Attempting to send email via Resend...');
+    const { data, error } = await resend.emails.send({
+      from: process.env.EMAIL_FROM,
       to: options.to,
       subject: options.subject,
       text: options.text,
-      html: options.html
-    };
+      html: options.html,
+    });
     
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', info.messageId);
-    return { success: true, messageId: info.messageId };
+    if (error) {
+      console.error('Resend Error:', error);
+      throw error;
+    }
+    
+    console.log('Email sent successfully:', data.id);
+    return { 
+      success: true, 
+      id: data.id
+    };
   } catch (error) {
     console.error('Error sending email:', error);
     throw error;
   }
 };
-
-export default { sendEmail };

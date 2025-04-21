@@ -15,12 +15,10 @@ export function ContactSellerModal({
   item
 }: ContactSellerModalProps) {
   const [buyerEmail, setBuyerEmail] = useState("");
-  const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const resetForm = () => {
     setBuyerEmail("");
-    setMessage("");
   };
 
   const handleClose = () => {
@@ -62,7 +60,7 @@ export function ContactSellerModal({
           itemName: item.name,
           buyerEmail,
           sellerEmail: item.email,
-          message: message || `I'm interested in your item "${item.name}". Please contact me at ${buyerEmail}.`
+          message: `I'm interested in your item "${item.name}". Please contact me at ${buyerEmail}.`
         }),
       });
       
@@ -81,9 +79,6 @@ export function ContactSellerModal({
       setIsSubmitting(false);
     }
   };
-
-  // Create a default message template
-  const defaultMessage = `I'm interested in your item "${item?.name}". Please contact me.`;
 
   return (
     <Modal 
@@ -130,17 +125,6 @@ export function ContactSellerModal({
             type="email"
             error={buyerEmail !== "" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(buyerEmail)}
             helperText={buyerEmail !== "" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(buyerEmail) ? "Please enter a valid email address" : ""}
-          />
-          
-          <TextField
-            label="Message (Optional)"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            fullWidth
-            multiline
-            rows={3}
-            margin="normal"
-            placeholder={defaultMessage}
           />
           
           <div className="flex justify-end gap-2 mt-4">

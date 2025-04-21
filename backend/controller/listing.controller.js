@@ -260,27 +260,55 @@ export const contactSeller = async (req, res) => {
       });
     }
 
-    // Send email to seller using our email service
-    const emailText = message || `A buyer (${buyerEmail}) is interested in your item "${itemName}". Please contact them to discuss further.`;
+    // Send email to seller using Resend
+    const emailText = `A buyer (${buyerEmail}) is interested in your item "${itemName}". Please contact them to discuss further.`;
     const emailHtml = `
-      <h2>You have received interest in your marketplace listing</h2>
-      <p>A buyer with email <strong>${buyerEmail}</strong> is interested in your item <strong>"${itemName}"</strong>.</p>
-      <p>${message || "Please contact them to discuss further details about your item."}</p>
-      <hr>
-      <p style="color: #666; font-size: 12px;">This is an automated message from the Student Marketplace. Please do not reply to this email.</p>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+        <h2 style="color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;">New Interest in Your Marketplace Listing</h2>
+        <p style="font-size: 16px; line-height: 1.5; color: #444;">Hello,</p>
+        <p style="font-size: 16px; line-height: 1.5; color: #444;">A buyer with email <strong>${buyerEmail}</strong> is interested in your item:</p>
+        <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #007bff; margin: 15px 0;">
+          <h3 style="margin-top: 0; color: #007bff;">${itemName}</h3>
+        </div>
+        <p style="font-size: 16px; line-height: 1.5; color: #444;">Please contact them to discuss further details about your item.</p>
+        <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; color: #777;">
+          <p>This is an automated message from the Student Marketplace. Please do not reply to this email.</p>
+        </div>
+      </div>
     `;
     
-    await sendEmail({
-      to: sellerEmail,
-      subject: `New interest in your listing: ${itemName}`,
-      text: emailText,
-      html: emailHtml
-    });
-    
-    res.status(200).json({
-      success: true,
-      message: "Interest notification sent to the seller."
-    });
+    try {
+      const result = await sendEmail({
+        to: sellerEmail,
+        subject: `New interest in your listing: ${itemName}`,
+        text: emailText,
+        html: emailHtml
+      });
+      
+      console.log("Email sent successfully with Resend:", result);
+      
+      res.status(200).json({
+        success: true,
+        message: "Interest notification sent to the seller."
+      });
+    } catch (emailError) {
+      console.error("Email sending error:", emailError);
+      
+      // Provide more detailed error message based on the error type
+      let errorMessage = "Failed to send email notification.";
+      
+      if (emailError.statusCode === 401) {
+        errorMessage = "Email service authentication failed. Please contact the administrator.";
+      } else if (emailError.statusCode === 429) {
+        errorMessage = "Too many email requests. Please try again later.";
+      }
+      
+      res.status(500).json({ 
+        success: false, 
+        error: errorMessage,
+        details: process.env.NODE_ENV === 'development' ? emailError.message : undefined
+      });
+    }
     
   } catch (error) {
     console.error("Error contacting seller:", error.message);

@@ -95,13 +95,16 @@ export function ItemCard({ item, onContactClick }: ItemCardProps) {
     <Card className="p-4 hover:shadow-md transition-shadow">
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-shrink-0 flex flex-col items-center">
-          <Image
-            src={item.image || "/placeholder.svg"}
-            alt={item.name}
-            width={150}
-            height={150}
-            className="rounded-md"
-          />
+          <div className="w-[150px] h-[170px] relative overflow-hidden rounded-md">
+            <Image
+              src={item.image || "/placeholder.svg"}
+              alt={item.name}
+              fill
+              sizes="150px"
+              style={{ objectFit: 'cover', objectPosition: 'center' }}
+              className="rounded-md"
+            />
+          </div>
           <div className="flex flex-col items-center mt-2">
             <span className="font-bold text-center">
               {formatPrice()}
@@ -152,32 +155,32 @@ export function ItemCard({ item, onContactClick }: ItemCardProps) {
               <div className="border-t pt-3 space-y-2">
                 <h3 className="font-medium text-sm">Contact Information:</h3>
                 {item.phoneNumber && (
-                  <div className="flex items-center text-sm" key="phone">
-                    <PhoneIcon className="h-4 w-4 mr-2 text-gray-500" />
-                    {item.phoneNumber}
+                  <div className="flex items-start text-sm" key="phone">
+                    <PhoneIcon className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0 text-gray-500" />
+                    <span className="break-all">{item.phoneNumber}</span>
                   </div>
                 )}
                 {item.email && (
-                  <div className="flex items-center justify-between text-sm" key="email">
-                    <div className="flex items-center">
-                      <MailIcon className="h-4 w-4 mr-2 text-gray-500" />
-                      {item.email}
-                    </div>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      onClick={handleContactByEmail} 
-                      className="text-xs py-1 px-2"
-                    >
-                      Send Email
-                    </Button>
+                  <div className="flex items-start text-sm" key="email">
+                    <MailIcon className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0 text-gray-500" />
+                    <span className="break-all">{item.email}</span>
                   </div>
                 )}
                 {item.facebookUsername && (
-                  <div className="flex items-center text-sm" key="facebook">
-                    <FaFacebook className="h-4 w-4 mr-2 text-blue-600" />
-                    {item.facebookUsername}
+                  <div className="flex items-start text-sm" key="facebook">
+                    <FaFacebook className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0 text-blue-600" />
+                    <span className="break-all">{item.facebookUsername}</span>
                   </div>
+                )}
+                {item.email && (
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={handleContactByEmail} 
+                    className="w-full mt-2 mb-2 bg-blue-50 text-blue-600 hover:bg-blue-100 border-blue-200"
+                  >
+                    Send Email
+                  </Button>
                 )}
                 <Button size="sm" variant="outline" onClick={handleContactClick} className="w-full mt-2">
                   Hide Contact Info
