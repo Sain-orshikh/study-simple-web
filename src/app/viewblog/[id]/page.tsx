@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import toast, { Toaster } from 'react-hot-toast';
-import { Navbar } from '@/components/navbar/navbar';
+import Sidebar from "@/components/sidebar/sidebar"
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -45,7 +45,7 @@ const ViewBlogPage = () => {
   const isLiked = id ? getLiked(id as string) : false;
   const isDisliked = id ? getDisliked(id as string) : false;
 
-  if (!id) return <div><Navbar/>Loading...</div>;
+  if (!id) return <div><Sidebar>Loading...</Sidebar></div>;
 
   const { data: blog, error, isLoading } = useQuery({
     queryKey: ["blogInfo", id],
@@ -274,10 +274,11 @@ const ViewBlogPage = () => {
   if (isLoading) {
     return (
       <>
-        <Navbar />
+        <Sidebar>
         <div className="w-full flex justify-center py-20">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
+        </Sidebar>
       </>
     );
   }
@@ -285,7 +286,7 @@ const ViewBlogPage = () => {
   return (
     <>
       <Toaster />
-      <Navbar />
+      <Sidebar>
       {error && <div className="text-red-500 text-center p-4">{(error as Error).message}</div>}
       <div className='w-full bg-white pb-10 dark:bg-gray-900'>
         <div className="relative w-[90%] sm:w-[60%] mx-auto bg-white dark:bg-gray-900">
@@ -435,6 +436,7 @@ const ViewBlogPage = () => {
           </div>
         </div>
       </div>
+      </Sidebar>
     </>
   );
 };

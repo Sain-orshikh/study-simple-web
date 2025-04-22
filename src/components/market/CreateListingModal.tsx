@@ -310,7 +310,7 @@ export function CreateListingModal({
               style={{ display: "none" }}
             />
             <label htmlFor="upload-image">
-              <Button className="bg-blue-500 hover:bg-blue-600 text-white" type="button" asChild>
+              <Button className="bg-blue-500 hover:bg-blue-600 text-black" type="button" asChild>
                 <span>Select Image</span>
               </Button>
             </label>
@@ -340,7 +340,7 @@ export function CreateListingModal({
             </Button>
             <Button 
               type="submit" 
-              className="bg-blue-500 hover:bg-blue-600 text-white"
+              className="bg-blue-500 hover:bg-blue-600 text-black"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Listing..." : "List Item"}

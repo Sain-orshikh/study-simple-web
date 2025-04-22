@@ -192,7 +192,7 @@ const PodcastPlayer: React.FC<PodcastPlayerProps> = ({ audioSrc, speaker }) => {
             {/* Play/Pause Button */}
             <button 
               onClick={togglePlay} 
-              className="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center text-white hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg"
+              className="w-14 h-14 rounded-full bg-blue-600 flex items-center justify-center text-black hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg"
               aria-label={isPlaying ? "Pause" : "Play"}
             >
               {isPlaying ? <FaPause className="text-lg" /> : <FaPlay className="ml-1 text-lg" />}

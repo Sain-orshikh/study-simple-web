@@ -1,6 +1,6 @@
 "use client"
 
-import { Navbar } from "@/components/navbar/navbar"
+import Sidebar from "@/components/sidebar/sidebar"
 import { Button } from "@/components/ui/button"
 import { SearchIcon, ShoppingCartIcon, EditIcon, HelpCircleIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
@@ -79,7 +79,7 @@ function MarketPageContent() {
 
   return (
     <>
-      <Navbar />
+      <Sidebar>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <main className="space-y-8">
           <h1 className="text-3xl font-bold mb-6">Student Marketplace</h1>
@@ -231,6 +231,7 @@ function MarketPageContent() {
       )}
 
       <Toaster />
+    </Sidebar>
     </>
   );
 }

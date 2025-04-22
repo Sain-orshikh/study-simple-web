@@ -1,4 +1,4 @@
-import { Navbar } from "@/components/navbar/navbar"
+import Sidebar from "@/components/sidebar/sidebar"
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
 import { CalendarIcon, LaptopIcon, LightbulbIcon, MusicIcon } from "lucide-react"
@@ -6,7 +6,7 @@ import { CalendarIcon, LaptopIcon, LightbulbIcon, MusicIcon } from "lucide-react
 export default function Blog() {
   return (
     <>
-      <Navbar />
+      <Sidebar>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
 
         <main className="space-y-8">
@@ -89,6 +89,7 @@ export default function Blog() {
           </section>
         </main>
       </div>
+      </Sidebar>
     </>
   )
 }

@@ -1,85 +1,81 @@
-import Link from "next/link"
-import { Card } from "@/components/ui/card"
-import { LightbulbIcon, CalendarIcon, MusicIcon, LaptopIcon } from "lucide-react"
-import { Navbar } from "@/components/navbar/navbar"
+"use client"
+
+import Sidebar from "@/components/sidebar/sidebar"
+import { HeroSection } from "@/components/home/HeroSection"
+import { EventCountdown } from "@/components/home/EventCountdown"
+import { WhyUseSection } from "@/components/home/WhyUseSection"
+import { LatestUpdates } from "@/components/home/LatestUpdates"
+import { CallToAction } from "@/components/home/CallToAction"
+import { Footer } from "@/components/home/Footer"
+import { NextEventNotification } from "@/components/home/NextEventNotification"
+import { MusicIcon, GlobeIcon, LaptopIcon } from "lucide-react"
 
 export default function Home() {
+  // Event data
+  const events = [
+    {
+      title: "Talent Show 2025",
+      description: "Showcase your talents and win amazing prizes",
+      icon: <MusicIcon className="h-5 w-5" />,
+      link: "/events/talent-show",
+      date: "May 15, 2025",
+      dateString: "2025-05-15T18:00:00",
+      location: "School Auditorium"
+    },
+    {
+      title: "Spirit Week",
+      description: "Show your school spirit with themed dress-up days",
+      icon: <GlobeIcon className="h-5 w-5" />,
+      link: "/events/spirit-week",
+      date: "June 1-5, 2025",
+      dateString: "2025-06-01T09:00:00",
+      location: "Main Campus"
+    },
+    {
+      title: "Hackathon 2025",
+      description: "Collaborate and code innovative solutions",
+      icon: <LaptopIcon className="h-5 w-5" />,
+      link: "/events/hackathon",
+      date: "April 30, 2025",
+      dateString: "2025-04-30T10:00:00",
+      location: "Computer Lab 3"
+    }
+  ]
+
+  // Study resources data
+  const resources = [
+    {
+      title: "Math Study Guide",
+      description: "Comprehensive guide to calculus fundamentals",
+      link: "/studies",
+      status: "New"
+    },
+    {
+      title: "Literature Notes",
+      description: "Analysis of classic literary works",
+      link: "/studies",
+      status: "Popular"
+    },
+    {
+      title: "Chemistry Flashcards",
+      description: "Interactive flashcards for organic chemistry",
+      link: "/studies",
+      status: "Updated"
+    }
+  ]
+
   return (
-    <>
-      <Navbar />
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-
-        <main className="space-y-8">
-          <aside className="border-l-4 border-gray-300 pl-4 py-4">
-            <p className="italic">
-              <span className="text-yellow-500 mr-2">●</span>
-              <em>
-                If you&apos;re seeking a tutor for your subjects,{" "}
-                <Link href="/tutors" className="text-blue-600 hover:underline">
-                  click here!
-                </Link>
-              </em>
-            </p>
-          </aside>
-
-          <div className="border-l-4 border-gray-300 pl-4 py-4">
-            <p className="flex items-center">
-              <LightbulbIcon className="h-5 w-5 text-yellow-500 mr-2" />
-              <span>Little tip: Always refresh before using it to see the updates.</span>
-            </p>
-          </div>
-
-          <section className="space-y-6">
-            <h2 className="text-2xl font-bold flex items-center">
-              <span className="mr-2">📱</span>
-              What&apos;s new? <span className="ml-2">📰</span>
-            </h2>
-
-            <div className="space-y-4">
-              <Card className="p-4 hover:shadow-md transition-shadow">
-                <Link href="/events/talent-show" className="flex items-center">
-                  <MusicIcon className="h-5 w-5 mr-2" />
-                  <span>Talent show 2023</span>
-                  <span className="ml-2">💃</span>
-                </Link>
-              </Card>
-
-              <Card className="p-4 hover:shadow-md transition-shadow">
-                <Link href="/events/spirit-week" className="flex items-center">
-                  <span className="mr-2">🐵</span>
-                  <span>Spirit week</span>
-                  <CalendarIcon className="h-5 w-5 ml-2 text-red-500" />
-                </Link>
-              </Card>
-
-              <Card className="p-4 hover:shadow-md transition-shadow">
-                <Link href="/school-clubs" className="flex items-center">
-                  <span className="mr-2">🏫</span>
-                  <span>School Clubs</span>
-                  <span className="ml-2">♣️</span>
-                </Link>
-              </Card>
-
-              <Card className="p-4 hover:shadow-md transition-shadow">
-                <Link href="/dea" className="flex items-center">
-                  <span className="mr-2">🏃</span>
-                  <span>DEA</span>
-                  <span className="ml-2">🎸</span>
-                </Link>
-              </Card>
-
-              <Card className="p-4 hover:shadow-md transition-shadow">
-                <Link href="/events/hackathon" className="flex items-center">
-                  <LaptopIcon className="h-5 w-5 mr-2" />
-                  <span>Hackathon 2023</span>
-                  <span className="ml-2">💬</span>
-                </Link>
-              </Card>
-            </div>
-          </section>
-        </main>
+    <Sidebar>
+      <div className="container mx-auto px-4">
+        <NextEventNotification events={events} />
       </div>
-    </>
+      <HeroSection />
+      <EventCountdown events={events} />
+      <WhyUseSection />
+      <LatestUpdates events={events} resources={resources} />
+      <CallToAction />
+      <Footer />
+    </Sidebar>
   )
 }
 

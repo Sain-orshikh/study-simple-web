@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from 'react';
-import { Navbar } from '@/components/navbar/navbar';
+import Sidebar from "@/components/sidebar/sidebar"
 import PodcastPlayer from '@/components/PodcastPlayer';
 import { FaHeadphones, FaSearch } from 'react-icons/fa';
 import { MdFilterList } from 'react-icons/md';
@@ -51,7 +51,7 @@ const PodcastPage = () => {
   
   return (
     <>
-      <Navbar />
+      <Sidebar>
       <div className="bg-gradient-to-b from-blue-50 to-white min-h-screen pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero Section */}
@@ -77,7 +77,7 @@ const PodcastPage = () => {
                   key={category}
                   className={`px-4 py-2 rounded-full whitespace-nowrap ${
                     selectedCategory === category 
-                      ? 'bg-blue-600 text-white' 
+                      ? 'bg-blue-600 text-black' 
                       : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
                   }`}
                   onClick={() => setSelectedCategory(category)}
@@ -122,7 +122,7 @@ const PodcastPage = () => {
           )}
           
           {/* Newsletter Signup */}
-          <div className="bg-blue-600 rounded-lg shadow-lg p-8 text-center text-white mb-12">
+          <div className="bg-blue-600 rounded-lg shadow-lg p-8 text-center text-black mb-12">
             <h2 className="text-2xl font-bold mb-4">Subscribe to Our Podcast Updates</h2>
             <p className="mb-6">Get notified when new episodes are released</p>
             <div className="flex max-w-md mx-auto">
@@ -131,13 +131,14 @@ const PodcastPage = () => {
                 placeholder="Your email address"
                 className="flex-grow px-4 py-2 rounded-l-lg text-gray-900 focus:outline-none"
               />
-              <button className="bg-gray-900 hover:bg-gray-800 text-white font-bold py-2 px-6 rounded-r-lg">
+              <button className="bg-gray-900 hover:bg-gray-800 text-black font-bold py-2 px-6 rounded-r-lg">
                 Subscribe
               </button>
             </div>
           </div>
         </div>
       </div>
+      </Sidebar>
     </>
   );
 };

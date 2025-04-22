@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { Navbar } from "@/components/navbar/navbar"
+import Sidebar from "@/components/sidebar/sidebar"
 
 export default function AboutUsPage() {
   const coordinators = [
@@ -50,7 +50,7 @@ export default function AboutUsPage() {
 
   return (
     <>
-      <Navbar />
+      <Sidebar>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <main className="space-y-12">
           <section>
@@ -81,6 +81,7 @@ export default function AboutUsPage() {
           </section>
         </main>
       </div>
+      </Sidebar>
     </>
   )
 }

@@ -1,12 +1,12 @@
 import { Card } from "@/components/ui/card"
 import { CalendarIcon } from "lucide-react"
-import { Navbar } from "@/components/navbar/navbar"
+import Sidebar from "@/components/sidebar/sidebar"
 
 export default function SpiritWeekPage() {
   return (
+    <>
+    <Sidebar>
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <Navbar currentPath="/events/spirit-week" />
-
       <main>
         <div className="flex items-center mb-6">
           <span className="text-2xl mr-2">🐵</span>
@@ -90,6 +90,8 @@ export default function SpiritWeekPage() {
         </div>
       </main>
     </div>
+    </Sidebar>
+    </>
   )
 }
 

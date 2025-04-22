@@ -254,7 +254,7 @@ export function EditListingModal({
             <div className="flex justify-end mt-4">
               <Button 
                 onClick={handleFetchListing}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
+                className="bg-blue-500 hover:bg-blue-600 text-black"
                 disabled={fetchingListing || !listingId}
               >
                 {fetchingListing ? "Searching..." : "Find Listing"}
@@ -418,7 +418,7 @@ export function EditListingModal({
                 style={{ display: "none" }}
               />
               <label htmlFor="edit-upload-image">
-                <Button className="bg-blue-500 hover:bg-blue-600 text-white" type="button" asChild>
+                <Button className="bg-blue-500 hover:bg-blue-600 text-black" type="button" asChild>
                   <span>Select New Image</span>
                 </Button>
               </label>
@@ -443,7 +443,7 @@ export function EditListingModal({
               </Button>
               <Button 
                 type="submit" 
-                className="bg-blue-500 hover:bg-blue-600 text-white"
+                className="bg-blue-500 hover:bg-blue-600 text-black"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Updating..." : "Update Listing"}

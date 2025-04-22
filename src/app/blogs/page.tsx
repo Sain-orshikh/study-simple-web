@@ -1,6 +1,6 @@
 "use client"
 
-import { Navbar } from "@/components/navbar/navbar"
+import Sidebar from "@/components/sidebar/sidebar"
 import { useQuery } from '@tanstack/react-query';
 import { useState, useEffect } from "react"
 import BlogCard from "@/components/ui/BlogCard"
@@ -69,7 +69,7 @@ export default function BlogsPage() {
 
   return (
     <>
-      <Navbar />
+      <Sidebar>
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <main className="space-y-8">
           {/* Header section */}
@@ -251,6 +251,7 @@ export default function BlogsPage() {
           </div>
         </main>
       </div>
+      </Sidebar>
     </>
   )
 }

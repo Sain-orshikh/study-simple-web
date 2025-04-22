@@ -1,4 +1,4 @@
-import { Navbar } from "@/components/navbar/navbar"
+import Sidebar from "@/components/sidebar/sidebar"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -75,7 +75,7 @@ export default function StudyToolsPage() {
 
   return (
     <>
-      <Navbar />
+      <Sidebar>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <main className="space-y-8">
           <h1 className="text-3xl font-bold mb-6">Study Tools</h1>
@@ -110,6 +110,7 @@ export default function StudyToolsPage() {
           </div>
         </main>
       </div>
+      </Sidebar>
     </>
   )
 }

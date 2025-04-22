@@ -3,12 +3,12 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Navbar } from "@/components/navbar/navbar"
+import Sidebar from "@/components/sidebar/sidebar"
 
 export default function TutorsPage() {
   return (
     <>
-      <Navbar />
+      <Sidebar>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <main>
           <h1 className="text-3xl font-bold mb-6">Find a Tutor</h1>
@@ -86,6 +86,7 @@ export default function TutorsPage() {
           </div>
         </main>
       </div>
+      </Sidebar>
     </>
   )
 }

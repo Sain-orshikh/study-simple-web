@@ -1,13 +1,13 @@
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { MusicIcon } from "lucide-react"
-import { Navbar } from "@/components/navbar/navbar"
+import Sidebar from "@/components/sidebar/sidebar"
 
 export default function TalentShowPage() {
   return (
+    <>
+    <Sidebar>
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <Navbar currentPath="/events/talent-show" />
-
       <main>
         <div className="flex items-center mb-6">
           <MusicIcon className="h-6 w-6 mr-2" />
@@ -60,6 +60,8 @@ export default function TalentShowPage() {
         </div>
       </main>
     </div>
+    </Sidebar>
+    </>
   )
 }
 

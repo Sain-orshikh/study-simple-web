@@ -432,7 +432,7 @@ const Editor = () => {
       <div className="w-[80%] mx-auto mt-3 flex justify-center">
         <button
           onClick={handleSubmit}
-          className="bg-blue-500 w-[90%] hover:bg-blue-700 cursor-pointer text-white py-2 rounded"
+          className="bg-blue-500 w-[90%] hover:bg-blue-700 cursor-pointer text-black py-2 rounded"
         >
           Submit
         </button>

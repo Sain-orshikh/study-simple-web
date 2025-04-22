@@ -1,4 +1,4 @@
-import { Navbar } from "@/components/navbar/navbar"
+import Sidebar from "@/components/sidebar/sidebar"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -80,7 +80,7 @@ export default function ClubsPage() {
 
   return (
     <>
-      <Navbar />
+      <Sidebar>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <main className="space-y-8">
           <h1 className="text-3xl font-bold mb-6">Clubs</h1>
@@ -139,6 +139,7 @@ export default function ClubsPage() {
           </div>
         </main>
       </div>
+      </Sidebar>
     </>
   )
 }

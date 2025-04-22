@@ -6,7 +6,7 @@ import { MdAdd, MdSettings } from "react-icons/md";
 import { BiSolidReport } from "react-icons/bi";
 import { useState } from "react";
 import Link from "next/link";
-import { Navbar } from "@/components/navbar/navbar";
+import Sidebar from "@/components/sidebar/sidebar"
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Modal } from "@mui/material";
 import toast, { Toaster } from "react-hot-toast";
@@ -71,7 +71,7 @@ const AdminPage = () => {
 
   return (
     <>
-      <Navbar />
+      <Sidebar>
       <Toaster />
       <div className='w-full h-full flex flex-col pt-6 px-10'>
         <div className='w-full flex justify-between space-x-10'>
@@ -119,21 +119,21 @@ const AdminPage = () => {
               Quick Actions
             </span>
             <div className="flex flex-row">
-              <Link href={"/publish/news"} className="flex flex-row items-center justify-center w-[50%] bg-black hover:bg-gray-900 text-white p-2 rounded-md shadow-sm hover:shadow-md mt-4 mr-4">
+              <Link href={"/publish/news"} className="flex flex-row items-center justify-center w-[50%] bg-black hover:bg-gray-900 text-black p-2 rounded-md shadow-sm hover:shadow-md mt-4 mr-4">
                 <MdAdd className='text-2xl mr-1' />
                 Create Blog
               </Link>
-              <button onClick={handleDelOpen} className="flex flex-row items-center justify-center w-[50%] bg-black hover:bg-gray-900 text-white p-2 rounded-md shadow-sm hover:shadow-md mt-4 mr-4">
+              <button onClick={handleDelOpen} className="flex flex-row items-center justify-center w-[50%] bg-black hover:bg-gray-900 text-black p-2 rounded-md shadow-sm hover:shadow-md mt-4 mr-4">
                 <FaTrash className='text-lg mr-1' />
                 Delete Blogs
               </button>
             </div>
             <div className="flex flex-row">
-              <button onClick={handleUnfinished} className="flex flex-row items-center justify-center w-[50%] bg-black hover:bg-gray-900 text-white p-2 rounded-md shadow-sm hover:shadow-md mt-4 mr-4">
+              <button onClick={handleUnfinished} className="flex flex-row items-center justify-center w-[50%] bg-black hover:bg-gray-900 text-black p-2 rounded-md shadow-sm hover:shadow-md mt-4 mr-4">
                 <BiSolidReport className='text-xl mr-1' />
                 View Reports
               </button>
-              <button onClick={handleUnfinished} className="flex flex-row items-center justify-center w-[50%] bg-black hover:bg-gray-900 text-white p-2 rounded-md shadow-sm hover:shadow-md mt-4 mr-4">
+              <button onClick={handleUnfinished} className="flex flex-row items-center justify-center w-[50%] bg-black hover:bg-gray-900 text-black p-2 rounded-md shadow-sm hover:shadow-md mt-4 mr-4">
                 <MdSettings className='text-xl mr-1' />
                 Settings
               </button>
@@ -176,12 +176,13 @@ const AdminPage = () => {
             <button onClick={() => setDelOpen(false)} className="bg-gray-300 hover:bg-gray-400 text-black font-bold py-2 px-4 rounded-md">
               Cancel
             </button>
-            <button onClick={handleDel} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md">
+            <button onClick={handleDel} className="bg-red-500 hover:bg-red-600 text-black font-bold py-2 px-4 rounded-md">
               Delete
             </button>
           </div>
         </div>
       </Modal>
+    </Sidebar>
     </>
   )
 }
