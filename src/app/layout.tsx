@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -26,7 +26,17 @@ export default function RootLayout({
 
   return (
     <html lang="en" className="light">
-      <body className={`${inter.className} bg-white text-gray-900 h-screen overflow-hidden`}>
+      <head>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            // Simple script to log scroll events
+            window.addEventListener('scroll', function() {
+              console.log('SCROLL DETECTED at ' + new Date().toISOString());
+            });
+          `
+        }} />
+      </head>
+      <body className={`${inter.className} bg-white text-gray-900`}>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
             {children}

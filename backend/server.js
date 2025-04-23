@@ -7,6 +7,7 @@ import cors from "cors";
 import blogRoutes from "./routes/blog.route.js";
 import listingRoutes from "./routes/listing.route.js";
 import supportRoutes from "./routes/support.route.js";
+import eventProposalRoutes from "./routes/event-proposal.route.js";
 import connectMongoDB from "./db/connectMongoDB.js";
 
 dotenv.config();
@@ -40,6 +41,7 @@ app.use(express.urlencoded({ extended: true })); //to parse form data
 app.use('/api/blogs', blogRoutes);
 app.use('/api/listings', listingRoutes);
 app.use('/api/support', supportRoutes);
+app.use('/api/event-proposals', eventProposalRoutes);
 
 if (process.env.NODE_ENV === "development") {
     app.use(express.static(path.join(__dirname, "/frontend/dist")));

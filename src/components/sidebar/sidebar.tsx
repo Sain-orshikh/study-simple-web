@@ -20,43 +20,60 @@ import {
   Moon,
   Menu,
   X,
-  ChevronLeft
+  ChevronLeft,
+  Calendar
 } from 'lucide-react'
 import logo from "@/assets/logo.png"
 
-export default function Sidebar({ children }: { children: React.ReactNode }) {
+interface SidebarProps {
+  children: React.ReactNode;
+}
+
+export default function Sidebar({ children }: SidebarProps) {
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false) // Start with closed sidebar
   const [clientWidth, setClientWidth] = useState(0)
   
-  // After mounting, we can safely show the theme toggle
+  // Use localStorage to persist user preference
   useEffect(() => {
-    setMounted(true)
-    
-    // Set default sidebar state based on screen size
-    const width = window.innerWidth
-    setClientWidth(width)
-    setSidebarOpen(width >= 768)
-    
-    const handleResize = () => {
-      const newWidth = window.innerWidth
-      setClientWidth(newWidth)
-      if (newWidth < 768) {
+    if (typeof window !== 'undefined') {
+      // Get saved state
+      const savedState = localStorage.getItem('sidebarOpen')
+      setSidebarOpen(savedState === 'true')
+    }
+  }, [])
+  
+  // Handle window resize
+  useEffect(() => {
+    const updateClientWidth = () => {
+      const width = window.innerWidth
+      setClientWidth(width)
+      
+      // On mobile devices, always close sidebar
+      if (width < 768) {
         setSidebarOpen(false)
       }
     }
     
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    // Set mounted state
+    setMounted(true)
+    
+    // Initial setup
+    updateClientWidth()
+    
+    // Listen for resize events
+    window.addEventListener('resize', updateClientWidth)
+    return () => window.removeEventListener('resize', updateClientWidth)
   }, [])
-  
+
   const navItems = [
     { path: '/', label: 'Home', icon: <HomeIcon className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
     { path: '/blogs', label: 'Blogs', icon: <Newspaper className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
     { path: '/studies', label: 'Studies', icon: <BookOpen className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
     { path: '/study-tools', label: 'Study Tools', icon: <Brain className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
+    { path: '/events', label: 'Events', icon: <Calendar className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
     { path: '/about-us', label: 'About Us', icon: <Users className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
     { path: '/school-clubs', label: 'School Clubs', icon: <BookMarked className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
     { path: '/podcasts', label: 'Podcasts', icon: <Podcast className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
@@ -70,12 +87,15 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
     setTheme(theme === 'dark' ? 'light' : 'dark')
   }
 
+  // Toggle sidebar function
   const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen)
+    const newState = !sidebarOpen
+    setSidebarOpen(newState)
+    localStorage.setItem('sidebarOpen', String(newState))
   }
 
   return (
-    <div className="flex h-screen bg-white dark:bg-gray-900">
+    <div className="flex min-h-screen bg-white dark:bg-gray-900">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
@@ -86,7 +106,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
       
       {/* Sidebar */}
       <aside 
-        className={`fixed md:static top-0 left-0 h-full bg-white dark:bg-gray-900 border-r dark:border-gray-800 shadow-sm z-20 transition-all duration-300 ${
+        className={`fixed md:sticky top-0 left-0 h-screen bg-white dark:bg-gray-900 border-r dark:border-gray-800 shadow-sm z-20 transition-all duration-500 ${
           sidebarOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full md:w-16 md:translate-x-0'
         }`}
       >
@@ -144,7 +164,18 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
           
           {/* Sidebar Footer */}
           <div className="p-4 border-t dark:border-gray-800 mt-auto">
-            <div className={`flex items-center justify-between text-gray-500 dark:text-gray-400 text-sm ${sidebarOpen ? '' : 'justify-center'}`}>
+            <div className={`flex flex-col mx-auto gap-2 text-gray-500 dark:text-gray-400 text-sm ${sidebarOpen ? 'flex-row justify-between' : 'justify-center'}`}>
+              {/* Toggle sidebar button - only visible when sidebar is closed on desktop */}
+              {!sidebarOpen && (
+                <button 
+                  onClick={toggleSidebar}
+                  className="p-2 rounded-md bg-[#5f2995] text-white hover:bg-[#8655ac] shadow-sm transition-all duration-300"
+                  aria-label="Open sidebar"
+                >
+                  <Menu size={18} />
+                </button>
+              )}
+              
               {sidebarOpen && <span>© 2025 Study Simple</span>}
               {mounted && (
                 <button 
@@ -165,9 +196,9 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
       </aside>
       
       {/* Main content */}
-      <div className="flex flex-col flex-grow overflow-hidden">
+      <div className="flex flex-col flex-grow">
         {/* Mobile header with toggle button */}
-        <header className="md:hidden flex items-center px-4 py-2 border-b dark:border-gray-800 bg-white dark:bg-gray-900">
+        <header className="md:hidden flex items-center px-4 py-2 border-b dark:border-gray-800 bg-white dark:bg-gray-900 transition-opacity duration-500">
           <button 
             onClick={toggleSidebar}
             className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -184,19 +215,10 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
           </div>
         </header>
         
-        {/* Desktop open sidebar button - only shown when sidebar is collapsed on desktop */}
-        {!sidebarOpen && clientWidth >= 768 && (
-          <button
-            onClick={toggleSidebar}
-            className="fixed left-4 top-4 z-10 p-2 rounded-md bg-[#5f2995] text-white hover:bg-[#8655ac] shadow-md transition-all duration-300"
-            aria-label="Open sidebar"
-          >
-            <Menu size={20} />
-          </button>
-        )}
-        
         {/* Page content */}
-        <main className="flex-grow overflow-auto bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+        <main 
+          className="flex-grow bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+        >
           {children}
         </main>
       </div>
