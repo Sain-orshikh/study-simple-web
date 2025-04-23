@@ -8,6 +8,7 @@ import blogRoutes from "./routes/blog.route.js";
 import listingRoutes from "./routes/listing.route.js";
 import supportRoutes from "./routes/support.route.js";
 import eventProposalRoutes from "./routes/event-proposal.route.js";
+import tutorRoutes from "./routes/tutor.route.js";
 import connectMongoDB from "./db/connectMongoDB.js";
 
 dotenv.config();
@@ -42,6 +43,7 @@ app.use('/api/blogs', blogRoutes);
 app.use('/api/listings', listingRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/event-proposals', eventProposalRoutes);
+app.use('/api/tutors', tutorRoutes);
 
 if (process.env.NODE_ENV === "development") {
     app.use(express.static(path.join(__dirname, "/frontend/dist")));

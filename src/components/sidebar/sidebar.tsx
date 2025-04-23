@@ -21,7 +21,9 @@ import {
   Menu,
   X,
   ChevronLeft,
-  Calendar
+  Calendar,
+  GraduationCap,
+  ChevronsLeftRightEllipsis
 } from 'lucide-react'
 import logo from "@/assets/logo.png"
 
@@ -48,12 +50,14 @@ export default function Sidebar({ children }: SidebarProps) {
   // Handle window resize
   useEffect(() => {
     const updateClientWidth = () => {
-      const width = window.innerWidth
-      setClientWidth(width)
-      
-      // On mobile devices, always close sidebar
-      if (width < 768) {
-        setSidebarOpen(false)
+      if (typeof window !== 'undefined') {
+        const width = window.innerWidth
+        setClientWidth(width)
+        
+        // On mobile devices, always close sidebar
+        if (width < 768) {
+          setSidebarOpen(false)
+        }
       }
     }
     
@@ -64,8 +68,10 @@ export default function Sidebar({ children }: SidebarProps) {
     updateClientWidth()
     
     // Listen for resize events
-    window.addEventListener('resize', updateClientWidth)
-    return () => window.removeEventListener('resize', updateClientWidth)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', updateClientWidth)
+      return () => window.removeEventListener('resize', updateClientWidth)
+    }
   }, [])
 
   const navItems = [
@@ -74,6 +80,7 @@ export default function Sidebar({ children }: SidebarProps) {
     { path: '/studies', label: 'Studies', icon: <BookOpen className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
     { path: '/study-tools', label: 'Study Tools', icon: <Brain className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
     { path: '/events', label: 'Events', icon: <Calendar className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
+    { path: '/tutor', label: 'Tutors', icon: <GraduationCap className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
     { path: '/about-us', label: 'About Us', icon: <Users className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
     { path: '/school-clubs', label: 'School Clubs', icon: <BookMarked className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
     { path: '/podcasts', label: 'Podcasts', icon: <Podcast className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
@@ -92,6 +99,13 @@ export default function Sidebar({ children }: SidebarProps) {
     const newState = !sidebarOpen
     setSidebarOpen(newState)
     localStorage.setItem('sidebarOpen', String(newState))
+  }
+
+  // Handle mobile link click
+  const handleLinkClick = () => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setSidebarOpen(false)
+    }
   }
 
   return (
@@ -142,15 +156,15 @@ export default function Sidebar({ children }: SidebarProps) {
                   <li key={item.path}>
                     <Link 
                       href={item.path}
-                      onClick={window.innerWidth < 768 ? () => setSidebarOpen(false) : undefined}
-                      className={`flex items-center py-3 px-4 text-sm ${
+                      onClick={handleLinkClick}
+                      className={`flex items-center justify-center py-3 px-4 text-sm ${
                         isActive 
                           ? 'bg-[#5f2995]/10 text-[#5f2995] dark:bg-[#5f2995]/20 dark:text-[#b98cd1] font-medium border-r-4 border-[#5f2995] dark:border-[#b98cd1]' 
                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                       }`}
                       title={!sidebarOpen ? item.label : undefined}
                     >
-                      <span className="mr-3">{item.icon}</span>
+                      <span className="mr-0">{item.icon}</span>
                       <span className={`transition-opacity duration-200 ${sidebarOpen ? 'opacity-100' : 'opacity-0 hidden md:hidden'}`}>
                         {item.label}
                       </span>
@@ -169,10 +183,10 @@ export default function Sidebar({ children }: SidebarProps) {
               {!sidebarOpen && (
                 <button 
                   onClick={toggleSidebar}
-                  className="p-2 rounded-md bg-[#5f2995] text-white hover:bg-[#8655ac] shadow-sm transition-all duration-300"
+                  className="p-2 mx-auto rounded-md bg-[#5f2995] text-white hover:bg-[#8655ac] shadow-sm transition-all duration-300"
                   aria-label="Open sidebar"
                 >
-                  <Menu size={18} />
+                  <ChevronRight size={18} />
                 </button>
               )}
               
