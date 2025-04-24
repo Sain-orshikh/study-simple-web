@@ -1,153 +1,60 @@
 import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import {
-  BookOpenIcon,
-  CodeIcon,
-  MusicIcon,
-  PaletteIcon,
-  GlobeIcon,
-  HeartIcon,
-  CameraIcon,
-  UsersIcon,
+import { 
+  ClockIcon, 
+  CalendarIcon, 
+  AlertCircleIcon 
 } from "lucide-react"
 import Sidebar from "@/components/sidebar/sidebar"
+import Image from "next/image"
+import Link from "next/link"
 
 export default function SchoolClubsPage() {
   return (
     <>
       <Sidebar>
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <main>
-          <div className="flex items-center mb-6">
-            <span className="text-2xl mr-2">🏫</span>
-            <h1 className="text-3xl font-bold">School Clubs</h1>
-            <span className="ml-2 text-2xl">♣️</span>
-          </div>
-
-          <div className="mb-8">
-            <p className="text-lg">
-              Explore the various clubs and extracurricular activities available at our school. Joining a club is a great
-              way to pursue your interests, develop new skills, and make friends!
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card className="p-6">
-              <div className="flex items-center mb-4">
-                <BookOpenIcon className="h-6 w-6 mr-2 text-blue-600" />
-                <h2 className="text-xl font-semibold">Book Club</h2>
+        <div className="container mx-auto px-4 py-12 max-w-4xl">
+          <main className="text-center">
+            <div className="flex flex-col items-center justify-center">
+              <div className="relative w-64 h-64 mb-8">
+                <div className="absolute inset-0 bg-purple-100 rounded-full animate-pulse opacity-50"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <CalendarIcon className="h-32 w-32 text-purple-600" />
+                </div>
               </div>
-              <p className="mb-4">
-                For students who love reading and discussing literature. We read a variety of genres and meet weekly to
-                share our thoughts.
-              </p>
-              <p className="text-sm text-gray-600 mb-4">Meeting: Tuesdays, 3:30 PM - 4:30 PM in the Library</p>
-              <Button size="sm">Join Club</Button>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-center mb-4">
-                <CodeIcon className="h-6 w-6 mr-2 text-green-600" />
-                <h2 className="text-xl font-semibold">Coding Club</h2>
+              
+              <h1 className="text-4xl font-bold mb-4">School Clubs</h1>
+              
+              <Card className="p-8 mb-8 border-2 border-amber-200 bg-amber-50 max-w-2xl">
+                <div className="flex items-center justify-center mb-4">
+                  <AlertCircleIcon className="h-8 w-8 text-amber-500 mr-2" />
+                  <h2 className="text-2xl font-semibold text-amber-700">Clubs Currently Closed</h2>
+                </div>
+                
+                <p className="text-lg mb-6 text-gray-700">
+                  Our clubs program is currently closed for the season. We'll be back in autumn with exciting new club opportunities!
+                </p>
+                
+                <div className="flex items-center justify-center space-x-2 text-gray-600 mb-6">
+                  <ClockIcon className="h-5 w-5" />
+                  <p>Expected return: September 2025</p>
+                </div>
+                
+                <div className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
+                  <h3 className="font-medium mb-2 text-gray-900">While you wait:</h3>
+                  <ul className="text-left list-disc pl-5 space-y-2 text-gray-700">
+                    <li>Check out our <Link href="/study-tools" className="text-blue-600 hover:underline">study tools</Link></li>
+                    <li>Browse <Link href="/events" className="text-blue-600 hover:underline">upcoming events</Link></li>
+                    <li>Visit the <Link href="/market" className="text-blue-600 hover:underline">marketplace</Link></li>
+                  </ul>
+                </div>
+              </Card>
+              
+              <div className="text-sm text-gray-500">
+                <p>For urgent club-related inquiries, please contact the student activities office.</p>
               </div>
-              <p className="mb-4">
-                Learn programming languages, work on coding projects, and participate in hackathons and competitions.
-              </p>
-              <p className="text-sm text-gray-600 mb-4">Meeting: Thursdays, 3:30 PM - 5:00 PM in Computer Lab 2</p>
-              <Button size="sm">Join Club</Button>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-center mb-4">
-                <MusicIcon className="h-6 w-6 mr-2 text-purple-600" />
-                <h2 className="text-xl font-semibold">Music Club</h2>
-              </div>
-              <p className="mb-4">
-                For students interested in playing instruments, singing, or music production. We organize performances
-                throughout the year.
-              </p>
-              <p className="text-sm text-gray-600 mb-4">
-                Meeting: Mondays and Wednesdays, 4:00 PM - 5:30 PM in the Music Room
-              </p>
-              <Button size="sm">Join Club</Button>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-center mb-4">
-                <PaletteIcon className="h-6 w-6 mr-2 text-yellow-600" />
-                <h2 className="text-xl font-semibold">Art Club</h2>
-              </div>
-              <p className="mb-4">
-                Express your creativity through various art forms including painting, drawing, sculpture, and digital art.
-              </p>
-              <p className="text-sm text-gray-600 mb-4">Meeting: Fridays, 3:30 PM - 5:00 PM in Art Room</p>
-              <Button size="sm">Join Club</Button>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-center mb-4">
-                <GlobeIcon className="h-6 w-6 mr-2 text-red-600" />
-                <h2 className="text-xl font-semibold">International Club</h2>
-              </div>
-              <p className="mb-4">
-                Celebrate cultural diversity, learn about different countries, and organize international food festivals.
-              </p>
-              <p className="text-sm text-gray-600 mb-4">Meeting: Every other Wednesday, 3:30 PM - 4:30 PM in Room 203</p>
-              <Button size="sm">Join Club</Button>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-center mb-4">
-                <HeartIcon className="h-6 w-6 mr-2 text-pink-600" />
-                <h2 className="text-xl font-semibold">Volunteer Club</h2>
-              </div>
-              <p className="mb-4">
-                Engage in community service projects and make a positive impact in our local community.
-              </p>
-              <p className="text-sm text-gray-600 mb-4">Meeting: Every other Monday, 3:30 PM - 4:30 PM in Room 105</p>
-              <Button size="sm">Join Club</Button>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-center mb-4">
-                <CameraIcon className="h-6 w-6 mr-2 text-indigo-600" />
-                <h2 className="text-xl font-semibold">Photography Club</h2>
-              </div>
-              <p className="mb-4">
-                Learn photography techniques, go on photo walks, and showcase your work in school exhibitions.
-              </p>
-              <p className="text-sm text-gray-600 mb-4">Meeting: Tuesdays, 4:00 PM - 5:00 PM in Room 210</p>
-              <Button size="sm">Join Club</Button>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-center mb-4">
-                <UsersIcon className="h-6 w-6 mr-2 text-orange-600" />
-                <h2 className="text-xl font-semibold">Debate Club</h2>
-              </div>
-              <p className="mb-4">
-                Develop public speaking skills, critical thinking, and participate in debate competitions.
-              </p>
-              <p className="text-sm text-gray-600 mb-4">Meeting: Wednesdays, 3:30 PM - 5:00 PM in Room 301</p>
-              <Button size="sm">Join Club</Button>
-            </Card>
-          </div>
-
-          <div className="mt-8 p-6 bg-gray-100 rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">Starting a New Club</h2>
-            <p className="mb-4">
-              Have an idea for a club that doesn&apos;t exist yet? You can propose a new club by following these steps:
-            </p>
-            <ol className="list-decimal pl-5 space-y-2">
-              <li>Find a faculty advisor willing to sponsor the club</li>
-              <li>Gather at least 5 interested students</li>
-              <li>Complete the club proposal form (available in the main office)</li>
-              <li>Submit your proposal to the Student Activities Coordinator</li>
-            </ol>
-            <Button className="mt-4">Download Club Proposal Form</Button>
-          </div>
-        </main>
-      </div>
+            </div>
+          </main>
+        </div>
       </Sidebar>
     </>
   )

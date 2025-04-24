@@ -141,3 +141,28 @@ export const isBlogDisliked = atom(
     return interactions[blogId]?.disliked || false;
   }
 );
+
+// Sidebar state atoms
+export const sidebarOpenState = atomWithStorage("sidebarOpen", false);
+
+export const setSidebarOpen = atom(
+  null,
+  (get: Getter, set: Setter, value: boolean) => {
+    set(sidebarOpenState, value);
+  }
+);
+
+// Hover state doesn't need persistence in localStorage
+export const sidebarHoverState = atom(false);
+
+export const setSidebarHover = atom(
+  null,
+  (get: Getter, set: Setter, value: boolean) => {
+    set(sidebarHoverState, value);
+  }
+);
+
+// Helper to determine effective sidebar state (open by toggle or by hover)
+export const effectiveSidebarState = atom(
+  (get: Getter) => get(sidebarOpenState) || get(sidebarHoverState)
+);

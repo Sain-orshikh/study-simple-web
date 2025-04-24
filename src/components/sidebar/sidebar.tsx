@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTheme } from "next-themes"
+import { useAtom } from "jotai"
+import { sidebarOpenState, setSidebarOpen, sidebarHoverState, setSidebarHover, effectiveSidebarState } from "@/components/themeatom"
 import {
   BookOpen,
   BookMarked,
@@ -22,8 +24,7 @@ import {
   X,
   ChevronLeft,
   Calendar,
-  GraduationCap,
-  ChevronsLeftRightEllipsis
+  GraduationCap
 } from 'lucide-react'
 import logo from "@/assets/logo.png"
 
@@ -35,17 +36,10 @@ export default function Sidebar({ children }: SidebarProps) {
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(false) // Start with closed sidebar
+  const [sidebarOpen, setSidebarOpenValue] = useAtom(sidebarOpenState)
+  const [isHovering, setIsHovering] = useAtom(sidebarHoverState)
+  const [effectiveOpen] = useAtom(effectiveSidebarState)
   const [clientWidth, setClientWidth] = useState(0)
-  
-  // Use localStorage to persist user preference
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Get saved state
-      const savedState = localStorage.getItem('sidebarOpen')
-      setSidebarOpen(savedState === 'true')
-    }
-  }, [])
   
   // Handle window resize
   useEffect(() => {
@@ -56,7 +50,8 @@ export default function Sidebar({ children }: SidebarProps) {
         
         // On mobile devices, always close sidebar
         if (width < 768) {
-          setSidebarOpen(false)
+          setSidebarOpenValue(false)
+          setIsHovering(false)
         }
       }
     }
@@ -72,7 +67,7 @@ export default function Sidebar({ children }: SidebarProps) {
       window.addEventListener('resize', updateClientWidth)
       return () => window.removeEventListener('resize', updateClientWidth)
     }
-  }, [])
+  }, [setSidebarOpenValue, setIsHovering])
 
   const navItems = [
     { path: '/', label: 'Home', icon: <HomeIcon className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
@@ -96,49 +91,60 @@ export default function Sidebar({ children }: SidebarProps) {
 
   // Toggle sidebar function
   const toggleSidebar = () => {
-    const newState = !sidebarOpen
-    setSidebarOpen(newState)
-    localStorage.setItem('sidebarOpen', String(newState))
+    setSidebarOpenValue(!sidebarOpen)
+  }
+
+  // Handle mouse enter for hover functionality - ONLY for navigation section
+  const handleNavMouseEnter = () => {
+    // Only trigger hover effect on desktop and when sidebar is closed
+    if (clientWidth >= 768 && !sidebarOpen) {
+      setIsHovering(true)
+    }
+  }
+
+  // Handle mouse leave for hover functionality
+  const handleNavMouseLeave = () => {
+    setIsHovering(false)
   }
 
   // Handle mobile link click
   const handleLinkClick = () => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      setSidebarOpen(false)
+      setSidebarOpenValue(false)
     }
   }
 
   return (
     <div className="flex min-h-screen bg-white dark:bg-gray-900">
       {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
+      {effectiveOpen && (
         <div 
           className="fixed inset-0 bg-black/20 z-10 md:hidden"
-          onClick={() => setSidebarOpen(false)}
+          onClick={() => setSidebarOpenValue(false)}
         ></div>
       )}
       
       {/* Sidebar */}
       <aside 
-        className={`fixed md:sticky top-0 left-0 h-screen bg-white dark:bg-gray-900 border-r dark:border-gray-800 shadow-sm z-20 transition-all duration-500 ${
-          sidebarOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full md:w-16 md:translate-x-0'
+        className={`fixed md:sticky top-0 left-0 h-screen bg-white dark:bg-gray-900 border-r dark:border-gray-800 shadow-sm z-20 transition-all duration-300 ${
+          effectiveOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full md:w-16 md:translate-x-0'
         }`}
       >
         <div className="h-full flex flex-col overflow-hidden">
           {/* Sidebar Header with Close Button */}
           <div className="p-4 border-b dark:border-gray-800 flex items-center justify-between">
-            <div className={`flex items-center transition-opacity duration-200 ${sidebarOpen ? 'opacity-100' : 'opacity-0 md:opacity-100'}`}>
+            <div className={`flex items-center transition-opacity duration-200 ${effectiveOpen ? 'opacity-100' : 'opacity-0 md:opacity-100'}`}>
               <img src={logo.src} alt="Logo" className="h-8 w-8 mr-2" />
-              <h2 className={`text-lg font-semibold text-[#5f2995] dark:text-[#b98cd1] whitespace-nowrap ${sidebarOpen ? '' : 'hidden md:hidden'}`}>
+              <h2 className={`text-lg font-semibold text-[#5f2995] dark:text-[#b98cd1] whitespace-nowrap ${effectiveOpen ? '' : 'hidden md:hidden'}`}>
                 Study Simple
               </h2>
             </div>
             
-            {/* Close sidebar button - only visible on desktop when sidebar is open */}
+            {/* Close sidebar button - only visible on desktop when sidebar is open by toggle, not by hover */}
             <button 
               onClick={toggleSidebar}
               className={`p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 transition-opacity duration-300 md:block ${
-                sidebarOpen ? 'opacity-100' : 'opacity-0 hidden md:hidden'
+                effectiveOpen ? 'opacity-100' : 'opacity-0 hidden md:hidden'
               }`}
               aria-label="Close sidebar"
             >
@@ -146,8 +152,12 @@ export default function Sidebar({ children }: SidebarProps) {
             </button>
           </div>
           
-          {/* Navigation Links */}
-          <nav className="flex-grow overflow-y-auto py-4">
+          {/* Navigation Links - Added onMouseEnter/onMouseLeave here */}
+          <nav 
+            className="flex-grow overflow-y-auto py-4"
+            onMouseEnter={handleNavMouseEnter}
+            onMouseLeave={handleNavMouseLeave}
+          >
             <ul className="space-y-1">
               {navItems.map((item) => {
                 const isActive = pathname === item.path
@@ -157,18 +167,18 @@ export default function Sidebar({ children }: SidebarProps) {
                     <Link 
                       href={item.path}
                       onClick={handleLinkClick}
-                      className={`flex items-center justify-center py-3 px-4 text-sm ${
+                      className={`flex items-center ${!effectiveOpen ? `justify-center` : ``} py-3 px-4 text-sm ${
                         isActive 
                           ? 'bg-[#5f2995]/10 text-[#5f2995] dark:bg-[#5f2995]/20 dark:text-[#b98cd1] font-medium border-r-4 border-[#5f2995] dark:border-[#b98cd1]' 
                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                       }`}
-                      title={!sidebarOpen ? item.label : undefined}
+                      title={!effectiveOpen ? item.label : undefined}
                     >
-                      <span className="mr-0">{item.icon}</span>
-                      <span className={`transition-opacity duration-200 ${sidebarOpen ? 'opacity-100' : 'opacity-0 hidden md:hidden'}`}>
+                      <span className={`${effectiveOpen ? `mr-3` : `mr-0`}`}>{item.icon}</span>
+                      <span className={`transition-opacity duration-200 ${effectiveOpen ? 'opacity-100' : 'opacity-0 hidden md:hidden'}`}>
                         {item.label}
                       </span>
-                      {isActive && sidebarOpen && <ChevronRight className="w-4 h-4 ml-auto" />}
+                      {isActive && effectiveOpen && <ChevronRight className="w-4 h-4 ml-auto" />}
                     </Link>
                   </li>
                 )
@@ -178,9 +188,9 @@ export default function Sidebar({ children }: SidebarProps) {
           
           {/* Sidebar Footer */}
           <div className="p-4 border-t dark:border-gray-800 mt-auto">
-            <div className={`flex flex-col mx-auto gap-2 text-gray-500 dark:text-gray-400 text-sm ${sidebarOpen ? 'flex-row justify-between' : 'justify-center'}`}>
+            <div className={`flex flex-col mx-auto gap-2 text-gray-500 dark:text-gray-400 text-sm ${effectiveOpen ? 'flex-row justify-between' : 'justify-center'}`}>
               {/* Toggle sidebar button - only visible when sidebar is closed on desktop */}
-              {!sidebarOpen && (
+              {!effectiveOpen && (
                 <button 
                   onClick={toggleSidebar}
                   className="p-2 mx-auto rounded-md bg-[#5f2995] text-white hover:bg-[#8655ac] shadow-sm transition-all duration-300"
@@ -190,7 +200,7 @@ export default function Sidebar({ children }: SidebarProps) {
                 </button>
               )}
               
-              {sidebarOpen && <span>© 2025 Study Simple</span>}
+              {effectiveOpen && <span>© 2025 Study Simple</span>}
               {mounted && (
                 <button 
                   onClick={toggleTheme} 
@@ -216,9 +226,9 @@ export default function Sidebar({ children }: SidebarProps) {
           <button 
             onClick={toggleSidebar}
             className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-            aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+            aria-label={effectiveOpen ? "Close sidebar" : "Open sidebar"}
           >
-            {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+            {effectiveOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
           
           <div className="flex items-center mx-auto">
