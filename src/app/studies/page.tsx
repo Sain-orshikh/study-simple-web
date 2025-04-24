@@ -4,210 +4,17 @@ import Sidebar from "@/components/sidebar/sidebar"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { BookOpenIcon, FileTextIcon, DownloadIcon, SearchIcon } from "lucide-react"
+import { BookOpenIcon, FileTextIcon, DownloadIcon, SearchIcon, Globe as GlobeIcon } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useState } from "react"
-import { 
-  Palette as PaletteIcon, // Art
-  BookOpen as BookOpenAltIcon, // English
-  Building as BuildingIcon, // Business
-  FlaskConical as FlaskIcon, // Chemistry
-  Languages as LanguagesIcon, // Chinese
-  BookA as BookIcon, // German
-  Cpu as CpuIcon, // Computer Science
-  Globe as GlobeIcon, // Geography, ESL
-  History as HistoryIcon, // History
-  Smartphone as SmartphoneIcon, // ICT
-  Calculator as CalculatorIcon, // Mathematics
-  Music as MusicIcon, // Music
-  Atom as AtomIcon, // Physics
-  Brain as BrainIcon, // Biology
-  BarChart2 as ChartIcon // Economics
-} from "lucide-react"
-
-interface Resource {
-  name: string;
-  type: string;
-  url?: string;
-}
-
-interface Subject {
-  id: string;
-  code: string;
-  name: string;
-  icon: React.ReactNode;
-  resources: Resource[];
-}
+import { ResourcesModal } from "@/components/ui/ResourcesModal"
+import { igcseSubjects } from "@/data/studies/subjects"
+import { alevelSubjects } from "@/data/studies/alevel-subjects"
 
 export default function StudiesPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
-
-  const igcseSubjects: Subject[] = [
-    {
-      id: "igcse-art",
-      code: "0400",
-      name: "Art & Design",
-      icon: <PaletteIcon className="h-5 w-5 text-purple-500" />,
-      resources: [],
-    },
-    {
-      id: "igcse-bio",
-      code: "0610",
-      name: "Biology",
-      icon: <BrainIcon className="h-5 w-5 text-green-500" />,
-      resources: [],
-    },
-    {
-      id: "igcse-business",
-      code: "0450",
-      name: "Business",
-      icon: <BuildingIcon className="h-5 w-5 text-blue-500" />,
-      resources: [],
-    },
-    {
-      id: "igcse-chem",
-      code: "0620",
-      name: "Chemistry",
-      icon: <FlaskIcon className="h-5 w-5 text-red-500" />,
-      resources: [],
-    },
-    {
-      id: "igcse-chinese",
-      code: "0547",
-      name: "Chinese",
-      icon: <LanguagesIcon className="h-5 w-5 text-yellow-500" />,
-      resources: [],
-    },
-    {
-      id: "igcse-cs",
-      code: "0478",
-      name: "Computer Science",
-      icon: <CpuIcon className="h-5 w-5 text-indigo-500" />,
-      resources: [],
-    },
-    {
-      id: "igcse-fle",
-      code: "0500",
-      name: "First Language English",
-      icon: <BookOpenAltIcon className="h-5 w-5 text-amber-500" />,
-      resources: [],
-    },
-    {
-      id: "igcse-esl",
-      code: "0510",
-      name: "English as a Second Language",
-      icon: <GlobeIcon className="h-5 w-5 text-teal-500" />,
-      resources: [],
-    },
-    {
-      id: "igcse-german",
-      code: "0525",
-      name: "German",
-      icon: <BookIcon className="h-5 w-5 text-orange-800" />,
-      resources: [],
-    },
-    {
-      id: "igcse-geo",
-      code: "0460",
-      name: "Geography",
-      icon: <GlobeIcon className="h-5 w-5 text-emerald-500" />,
-      resources: [],
-    },
-    {
-      id: "igcse-history",
-      code: "0470",
-      name: "World History",
-      icon: <HistoryIcon className="h-5 w-5 text-amber-700" />,
-      resources: [],
-    },
-    {
-      id: "igcse-ict",
-      code: "0417",
-      name: "Information & Communication Technology",
-      icon: <SmartphoneIcon className="h-5 w-5 text-sky-500" />,
-      resources: [],
-    },
-    {
-      id: "igcse-math",
-      code: "0580",
-      name: "Mathematics",
-      icon: <CalculatorIcon className="h-5 w-5 text-violet-500" />,
-      resources: [],
-    },
-    {
-      id: "igcse-music",
-      code: "0410",
-      name: "Music",
-      icon: <MusicIcon className="h-5 w-5 text-pink-500" />,
-      resources: [],
-    },
-    {
-      id: "igcse-physics",
-      code: "0625",
-      name: "Physics",
-      icon: <AtomIcon className="h-5 w-5 text-blue-700" />,
-      resources: [],
-    },
-  ];
-
-  const alevelSubjects: Subject[] = [
-    {
-      id: "alevel-art",
-      code: "9479",
-      name: "Art & Design",
-      icon: <PaletteIcon className="h-5 w-5 text-purple-500" />,
-      resources: [],
-    },
-    {
-      id: "alevel-bio",
-      code: "9700",
-      name: "Biology",
-      icon: <BrainIcon className="h-5 w-5 text-green-500" />,
-      resources: [],
-    },
-    {
-      id: "alevel-chem",
-      code: "9701",
-      name: "Chemistry",
-      icon: <FlaskIcon className="h-5 w-5 text-red-500" />,
-      resources: [],
-    },
-    {
-      id: "alevel-chinese",
-      code: "9715",
-      name: "Chinese",
-      icon: <LanguagesIcon className="h-5 w-5 text-yellow-500" />,
-      resources: [],
-    },
-    {
-      id: "alevel-econ",
-      code: "9708",
-      name: "Economics",
-      icon: <ChartIcon className="h-5 w-5 text-emerald-600" />,
-      resources: [],
-    },
-    {
-      id: "alevel-geo",
-      code: "9696",
-      name: "Geography",
-      icon: <GlobeIcon className="h-5 w-5 text-emerald-500" />,
-      resources: [],
-    },
-    {
-      id: "alevel-math",
-      code: "9709",
-      name: "Mathematics",
-      icon: <CalculatorIcon className="h-5 w-5 text-violet-500" />,
-      resources: [],
-    },
-    {
-      id: "alevel-physics",
-      code: "9702",
-      name: "Physics",
-      icon: <AtomIcon className="h-5 w-5 text-blue-700" />,
-      resources: [],
-    },
-  ];
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [selectedSubject, setSelectedSubject] = useState<any | null>(null);
 
   const filteredIgcseSubjects = igcseSubjects.filter(subject =>
     subject.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -293,24 +100,45 @@ export default function StudiesPage() {
                           </div>
 
                           {subject.resources.length > 0 ? (
-                            <ul className="space-y-3 mb-4">
-                              {subject.resources.map((resource, index) => (
-                                <li key={index} className="flex items-center">
-                                  <FileTextIcon className="h-4 w-4 mr-2 text-gray-500" />
-                                  <span>{resource.name}</span>
-                                  <Button variant="ghost" size="icon" className="ml-auto">
-                                    <DownloadIcon className="h-4 w-4" />
-                                  </Button>
-                                </li>
-                              ))}
-                            </ul>
+                            <div className="mb-4">
+                              <ul className="space-y-3 mb-2">
+                                {subject.resources.slice(0, 3).map((resource, index) => (
+                                  <li key={index} className="flex items-center">
+                                    <FileTextIcon className="h-4 w-4 mr-2 text-gray-500" />
+                                    <span className="text-sm truncate max-w-[170px]">{resource.name}</span>
+                                    <a 
+                                      href={resource.url}
+                                      download
+                                      className="ml-auto"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <Button variant="ghost" size="icon" className="h-7 w-7">
+                                        <DownloadIcon className="h-4 w-4" />
+                                      </Button>
+                                    </a>
+                                  </li>
+                                ))}
+                              </ul>
+                              {subject.resources.length > 3 && (
+                                <p className="text-xs text-gray-500 italic">
+                                  +{subject.resources.length - 3} more resources
+                                </p>
+                              )}
+                            </div>
                           ) : (
                             <p className="text-sm text-gray-500 mb-4">
                               Resources coming soon. Check back later!
                             </p>
                           )}
 
-                          <Button size="sm" className="w-full">
+                          <Button
+                            size="sm"
+                            className="w-full"
+                            onClick={() => {
+                              setSelectedSubject(subject);
+                              setModalOpen(true);
+                            }}
+                          >
                             View All Resources
                           </Button>
                         </Card>
@@ -341,24 +169,45 @@ export default function StudiesPage() {
                           </div>
 
                           {subject.resources.length > 0 ? (
-                            <ul className="space-y-3 mb-4">
-                              {subject.resources.map((resource, index) => (
-                                <li key={index} className="flex items-center">
-                                  <FileTextIcon className="h-4 w-4 mr-2 text-gray-500" />
-                                  <span>{resource.name}</span>
-                                  <Button variant="ghost" size="icon" className="ml-auto">
-                                    <DownloadIcon className="h-4 w-4" />
-                                  </Button>
-                                </li>
-                              ))}
-                            </ul>
+                            <div className="mb-4">
+                              <ul className="space-y-3 mb-2">
+                                {subject.resources.slice(0, 3).map((resource, index) => (
+                                  <li key={index} className="flex items-center">
+                                    <FileTextIcon className="h-4 w-4 mr-2 text-gray-500" />
+                                    <span className="text-sm truncate max-w-[170px]">{resource.name}</span>
+                                    <a 
+                                      href={resource.url}
+                                      download
+                                      className="ml-auto"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <Button variant="ghost" size="icon" className="h-7 w-7">
+                                        <DownloadIcon className="h-4 w-4" />
+                                      </Button>
+                                    </a>
+                                  </li>
+                                ))}
+                              </ul>
+                              {subject.resources.length > 3 && (
+                                <p className="text-xs text-gray-500 italic">
+                                  +{subject.resources.length - 3} more resources
+                                </p>
+                              )}
+                            </div>
                           ) : (
                             <p className="text-sm text-gray-500 mb-4">
                               Resources coming soon. Check back later!
                             </p>
                           )}
 
-                          <Button size="sm" className="w-full">
+                          <Button
+                            size="sm"
+                            className="w-full"
+                            onClick={() => {
+                              setSelectedSubject(subject);
+                              setModalOpen(true);
+                            }}
+                          >
                             View All Resources
                           </Button>
                         </Card>
@@ -391,6 +240,14 @@ export default function StudiesPage() {
           </main>
         </div>
       </Sidebar>
+
+      {selectedSubject && (
+        <ResourcesModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          subject={selectedSubject}
+        />
+      )}
     </>
   );
 }
