@@ -9,6 +9,7 @@ import listingRoutes from "./routes/listing.route.js";
 import supportRoutes from "./routes/support.route.js";
 import eventProposalRoutes from "./routes/event-proposal.route.js";
 import tutorRoutes from "./routes/tutor.route.js";
+import podcastSubscriberRoutes from "./routes/podcast-subscriber.route.js"; // Added import for podcast subscribers
 import connectMongoDB from "./db/connectMongoDB.js";
 
 dotenv.config();
@@ -44,6 +45,7 @@ app.use('/api/listings', listingRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/event-proposals', eventProposalRoutes);
 app.use('/api/tutors', tutorRoutes);
+app.use('/api/podcast-subscribers', podcastSubscriberRoutes); // Added podcast subscriber routes
 
 if (process.env.NODE_ENV === "development") {
     app.use(express.static(path.join(__dirname, "/frontend/dist")));
