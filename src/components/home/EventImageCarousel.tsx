@@ -233,7 +233,7 @@ export function EventImageCarousel({ events }: { events: Event[] }) {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.7, duration: 0.3 }}
                         >
-                          <Link href={eventsWithImages[currentIndex].link}>
+                          <Link href={eventsWithImages[currentIndex].link === "https://maistimes.org" ? "/events" : eventsWithImages[currentIndex].link}>
                             <button className="px-5 py-2 bg-[#5f2995] hover:bg-[#8655ac] text-white rounded-md transition-colors duration-300">
                               Learn More
                             </button>

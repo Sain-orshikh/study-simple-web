@@ -3,13 +3,14 @@
 import { useState, useEffect, useRef } from "react"
 import Sidebar from "@/components/sidebar/sidebar"
 import { HeroSection } from "@/components/home/HeroSection"
-import { EventImageCarousel } from "@/components/home/EventImageCarousel" // Import the new image carousel
+import { EventImageCarousel } from "@/components/home/EventImageCarousel" 
 import { WhyUseSection } from "@/components/home/WhyUseSection"
 import { LatestUpdates } from "@/components/home/LatestUpdates"
 import { CallToAction } from "@/components/home/CallToAction"
 import { Footer } from "@/components/home/Footer"
 import { NextEventNotification } from "@/components/home/NextEventNotification"
-import { MusicIcon, GlobeIcon, LaptopIcon } from "lucide-react"
+import { MusicIcon, GlobeIcon, LaptopIcon, Calendar } from "lucide-react"
+import { eventsData, getUpcomingEvents, getPastEvents } from "@/data/events"
 
 export default function Home() {
   // Scroll state for showing elements after hero section
@@ -47,56 +48,54 @@ export default function Home() {
     }
   }, [])
 
-  // Event data with dates converted for easier processing
-  const events = [
-    {
-      title: "Talent Show 2025",
-      description: "Showcase your talents and win amazing prizes in our annual talent show. Students from all grades can participate with musical performances, dance routines, magic tricks, and more!",
-      icon: <MusicIcon className="h-5 w-5" />,
-      link: "/events/talent-show",
-      date: "May 15, 2025",
-      dateString: "2025-05-15T18:00:00",
-      location: "School Auditorium",
-      image: "/events/talent-show.jpg"
-    },
-    {
-      title: "Spirit Week",
-      description: "Show your school spirit with themed dress-up days, pep rallies, and special activities throughout the week. Join in the fun with costume contests and school pride challenges!",
-      icon: <GlobeIcon className="h-5 w-5" />,
-      link: "/events/spirit-week",
-      date: "June 1-5, 2025",
-      dateString: "2025-06-01T09:00:00",
-      location: "Main Campus",
-      image: "/events/spirit-week.jpg"
-    },
-    {
-      title: "Hackathon 2025",
-      description: "Collaborate and code innovative solutions in our 48-hour coding competition. Form teams, tackle real-world problems, and compete for prizes while building your portfolio.",
-      icon: <LaptopIcon className="h-5 w-5" />,
-      link: "/events/hackathon",
-      date: "April 30, 2025",
-      dateString: "2025-04-30T10:00:00",
-      location: "Computer Lab 3",
-      image: "/events/hackathon.jpg"
-    },
-    {
-      title: "Spring Club Fair",
-      description: "Discover and join student clubs and organizations at our Spring Club Fair. Meet club representatives, learn about activities, and sign up for memberships.",
-      icon: <LaptopIcon className="h-5 w-5" />,
-      link: "/events/club-fair",
-      date: "May 5, 2025",
-      dateString: "2025-05-05T12:00:00",
-      location: "Student Center",
-      image: "/events/club-fair.jpg"
-    }
-  ].map(event => ({
-    ...event,
-    eventDate: new Date(event.dateString)
+  // Format events from eventsData to match the expected format for the carousel
+  const formattedEvents = eventsData.map(event => ({
+    title: event.title,
+    description: event.description,
+    icon: event.icon,
+    link: event.link || `/events/${event.id}`,
+    date: event.dateString,
+    dateString: event.date, // Using the ISO date string
+    eventDate: event.eventDate,
+    location: event.location,
+    image: event.imageUrl // Using imageUrl from the events data if available
   }))
 
-  // Check if the Hackathon event is in the past (based on current date April 23, 2025)
-  const currentDate = new Date('2025-04-23')
-  const activeEvents = events.filter(event => event.eventDate > currentDate)
+  // Get 4 featured events (prioritizing the Shark Tank and Midnight Masquerade events)
+  const sharkTankEvent = eventsData.find(event => event.id === "shark-tank-2024");
+  const masqueradeEvent = eventsData.find(event => event.id === "midnight-masquerade");
+  const featuredEvents = [
+    ...(sharkTankEvent ? [sharkTankEvent] : []), // Add Shark Tank as first event if found
+    ...(masqueradeEvent ? [masqueradeEvent] : []), // Add Midnight Masquerade as second event if found
+    ...getPastEvents(eventsData)
+      .filter(event => event.id !== "shark-tank-2024" && event.id !== "midnight-masquerade") // Exclude already added events
+      .filter(event => event.id !== "alumni-forum-2025") // Explicitly exclude the Alumni Forum event
+      .slice(0, 2) // Get 2 other past events (to make a total of 4 with the two prioritized events)
+  ].slice(0, 4) // Ensure we have at most 4 events
+    .map(event => ({
+      title: event.title,
+      description: event.description,
+      icon: event.icon,
+      link: event.link || `/events/${event.id}`,
+      date: event.dateString,
+      dateString: event.date,
+      eventDate: event.eventDate,
+      location: event.location,
+      image: event.imageUrl
+    }));
+
+  // Get upcoming events for the notification
+  const upcomingEvents = getUpcomingEvents(eventsData).map(event => ({
+    title: event.title,
+    description: event.description,
+    icon: event.icon,
+    link: event.link || `/events/${event.id}`,
+    date: event.dateString,
+    dateString: event.date,
+    eventDate: event.eventDate,
+    location: event.location,
+    image: event.imageUrl
+  }))
 
   // Study resources data
   const resources = [
@@ -127,13 +126,13 @@ export default function Home() {
       </div>
       
       {/* Always show the notification (not dependent on scroll) */}
-      <NextEventNotification events={activeEvents} />
+      <NextEventNotification events={upcomingEvents} />
       
-      {/* Animated carousel showing all events */}
-      <EventImageCarousel events={events} />
+      {/* Animated carousel showing featured events */}
+      <EventImageCarousel events={featuredEvents} />
       
       <WhyUseSection />
-      <LatestUpdates events={events} resources={resources} />
+      <LatestUpdates events={formattedEvents} resources={resources} />
       <CallToAction />
       <Footer />
     </Sidebar>

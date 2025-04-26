@@ -21,7 +21,7 @@ interface NewUser {
   }
   
   export const newUser = atomWithStorage<NewUser>("newUser", {
-    username: 'lol',
+    username: '',
     email: '',
     password: '',
     picture: '',

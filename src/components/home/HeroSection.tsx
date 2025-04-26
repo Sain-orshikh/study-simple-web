@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRightIcon, BookOpenIcon, ShoppingBagIcon, UsersIcon, CalendarIcon } from "lucide-react"
+import { ArrowRightIcon, BookOpenIcon, ShoppingBagIcon, UsersIcon, CalendarIcon, LaptopIcon } from "lucide-react"
 import { TextEffect } from "@/components/animation/texteffect"
 
 export function HeroSection() {
@@ -52,24 +52,24 @@ export function HeroSection() {
             </div>
           </Link>
           
-          <Link href="/school-clubs" className="group">
+          <Link href="/studies" className="group">
             <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-white/20 hover:bg-white/20 transition-all duration-300 h-full flex flex-col items-center text-center">
-              <UsersIcon className="h-12 w-12 mb-4 text-white" />
+              <BookOpenIcon className="h-12 w-12 mb-4 text-white" />
               <TextEffect preset="blur" per="word" delay={1} className="text-xl font-semibold mb-2">
-                School Clubs
+                Studies
               </TextEffect>
               <TextEffect preset="fade" per="word" delay={1.2} className="text-white/80 mb-4">
-                Find and join student clubs and activities
+                Access study materials for various subjects
               </TextEffect>
               <span className="text-white/90 group-hover:text-white flex items-center text-sm mt-auto">
-                Find Clubs <ArrowRightIcon className="ml-1 h-4 w-4" />
+                Browse Resources <ArrowRightIcon className="ml-1 h-4 w-4" />
               </span>
             </div>
           </Link>
           
           <Link href="/study-tools" className="group">
             <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-white/20 hover:bg-white/20 transition-all duration-300 h-full flex flex-col items-center text-center">
-              <BookOpenIcon className="h-12 w-12 mb-4 text-white" />
+              <LaptopIcon className="h-12 w-12 mb-4 text-white" />
               <TextEffect preset="blur" per="word" delay={1.2} className="text-xl font-semibold mb-2">
                 Study Tools
               </TextEffect>

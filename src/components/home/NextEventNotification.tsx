@@ -130,7 +130,7 @@ export function NextEventNotification({ events }: { events: Event[] }) {
                 </div>
                 
                 <Link 
-                  href={nextEvent.link} 
+                  href="/events" 
                   className="bg-white/10 hover:bg-white/20 text-white text-sm px-3 py-2 rounded flex items-center justify-center transition-colors"
                 >
                   <span>View Full Details</span>
