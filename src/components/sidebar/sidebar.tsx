@@ -81,7 +81,6 @@ export default function Sidebar({ children }: SidebarProps) {
     { path: '/podcasts', label: 'Podcasts', icon: <Podcast className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
     { path: '/application-tips', label: 'Application Tips', icon: <Lightbulb className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
     { path: '/market', label: 'Market', icon: <Store className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
-    { path: '/others', label: 'Others', icon: <MoreHorizontal className='w-5 h-5 text-neutral-600 dark:text-neutral-300' /> },
   ]
 
   // Toggle theme function
