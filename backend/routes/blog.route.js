@@ -11,7 +11,8 @@ import {
     unlikeBlog,
     dislikeBlog, 
     addComment, 
-    getComments 
+    getComments,
+    updateBlog
 } from "../controller/blog.controller.js";
 
 const router = express.Router();
@@ -19,6 +20,7 @@ const router = express.Router();
 router.get("/fetch/:id", fetchBlog);
 router.get("/fetch", fetchBlogs);
 router.post("/create", upload.single("image"), createBlog);
+router.put("/update/:id", upload.single("image"), updateBlog);
 router.delete("/delete/:id", deleteBlog);
 
 // Routes for likes, dislikes, and comments

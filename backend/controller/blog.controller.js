@@ -227,3 +227,66 @@ export const getComments = async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error" });
     }
 };
+
+export const updateBlog = async (req, res) => {
+  try {
+    const blogId = req.params.id;
+
+    // First check if the blog exists
+    const blog = await Blog.findById(blogId);
+    if (!blog) {
+      return res.status(404).json({ success: false, error: "Blog not found" });
+    }
+
+    // Extract update data from request body
+    const { title, content, category, author, imageUrl } = req.body;
+
+    // Prepare update object with only provided fields
+    const updateData = {};
+    if (title) updateData.title = title;
+    if (content) updateData.content = content;
+    if (category) updateData.category = category;
+    if (author) updateData.author = author;
+
+    // Handle image update if provided
+    if (req.file) {
+      const streamUpload = (buffer) =>
+        new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "blog-images" },
+            (error, result) => {
+              if (result) resolve(result);
+              else reject(error);
+            }
+          );
+          streamifier.createReadStream(buffer).pipe(stream);
+        });
+
+      const uploadedImage = await streamUpload(req.file.buffer);
+      updateData.image = uploadedImage.secure_url;
+    } else if (imageUrl) {
+      // User provided a URL string
+      const uploadedImage = await cloudinary.uploader.upload(imageUrl, {
+        folder: "blog-images",
+      });
+      updateData.image = uploadedImage.secure_url;
+    }
+
+    // Update the blog
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      blogId,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Blog updated successfully",
+      data: updatedBlog
+    });
+
+  } catch (error) {
+    console.error("Error updating blog:", error.message);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+};

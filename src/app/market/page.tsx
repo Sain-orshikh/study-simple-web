@@ -144,7 +144,7 @@ function MarketPageContent() {
             <div className="grid md:grid-cols-2 gap-6">
               {items.map((item) => (
                 <ItemCard 
-                  key={item.id} 
+                  key={item._id || item.id} 
                   item={item} 
                   onContactClick={contactSeller} 
                 />

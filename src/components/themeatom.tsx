@@ -166,3 +166,13 @@ export const setSidebarHover = atom(
 export const effectiveSidebarState = atom(
   (get: Getter) => get(sidebarOpenState) || get(sidebarHoverState)
 );
+
+// Navigation loading state atom
+export const navigationLoadingState = atom(false);
+
+export const setNavigationLoading = atom(
+  null,
+  (get: Getter, set: Setter, value: boolean) => {
+    set(navigationLoadingState, value);
+  }
+);

@@ -2,10 +2,18 @@
 
 import React, { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
 import { useAtom } from "jotai"
-import { sidebarOpenState, setSidebarOpen, sidebarHoverState, setSidebarHover, effectiveSidebarState } from "@/components/themeatom"
+import { 
+  sidebarOpenState, 
+  setSidebarOpen, 
+  sidebarHoverState, 
+  setSidebarHover, 
+  effectiveSidebarState,
+  navigationLoadingState,
+  setNavigationLoading
+} from "@/components/themeatom"
 import {
   BookOpen,
   BookMarked,
@@ -27,18 +35,21 @@ import {
   GraduationCap
 } from 'lucide-react'
 import logo from "@/assets/logo.png"
+import NavigationLoader from "../navigation-loader"
 
 interface SidebarProps {
   children: React.ReactNode;
 }
 
 export default function Sidebar({ children }: SidebarProps) {
+  const router = useRouter()
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [sidebarOpen, setSidebarOpenValue] = useAtom(sidebarOpenState)
   const [isHovering, setIsHovering] = useAtom(sidebarHoverState)
   const [effectiveOpen] = useAtom(effectiveSidebarState)
+  const [, setIsNavigating] = useAtom(setNavigationLoading)
   const [clientWidth, setClientWidth] = useState(0)
   
   // Handle window resize
@@ -106,15 +117,35 @@ export default function Sidebar({ children }: SidebarProps) {
     setIsHovering(false)
   }
 
-  // Handle mobile link click
-  const handleLinkClick = () => {
+  // Handle link click with custom navigation
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+    e.preventDefault() // Prevent default navigation
+    
+    // Display loading state immediately
+    setIsNavigating(true)
+    
+    // Close sidebar on mobile
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
       setSidebarOpenValue(false)
     }
+    
+    // Use setTimeout to create a small delay before navigation
+    // This ensures the loader is visible before the potential lag
+    setTimeout(() => {
+      router.push(path)
+      
+      // Reset loader after navigation starts
+      setTimeout(() => {
+        setIsNavigating(false)
+      }, 800) // This value should match the duration in NavigationLoader
+    }, 50) // Small delay to ensure loader appears first
   }
 
   return (
     <div className="flex min-h-screen bg-white dark:bg-gray-900">
+      {/* Navigation progress indicator */}
+      <NavigationLoader />
+      
       {/* Mobile sidebar overlay */}
       {effectiveOpen && (
         <div 
@@ -163,9 +194,9 @@ export default function Sidebar({ children }: SidebarProps) {
                 
                 return (
                   <li key={item.path}>
-                    <Link 
+                    <a 
                       href={item.path}
-                      onClick={handleLinkClick}
+                      onClick={(e) => handleLinkClick(e, item.path)}
                       className={`flex items-center ${!effectiveOpen ? `justify-center` : ``} py-3 px-4 text-sm ${
                         isActive 
                           ? 'bg-[#5f2995]/10 text-[#5f2995] dark:bg-[#5f2995]/20 dark:text-[#b98cd1] font-medium border-r-4 border-[#5f2995] dark:border-[#b98cd1]' 
@@ -178,7 +209,7 @@ export default function Sidebar({ children }: SidebarProps) {
                         {item.label}
                       </span>
                       {isActive && effectiveOpen && <ChevronRight className="w-4 h-4 ml-auto" />}
-                    </Link>
+                    </a>
                   </li>
                 )
               })}
@@ -200,19 +231,6 @@ export default function Sidebar({ children }: SidebarProps) {
               )}
               
               {effectiveOpen && <span>© 2025 Study Simple</span>}
-              {mounted && (
-                <button 
-                  onClick={toggleTheme} 
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
-                  aria-label={theme === 'dark' ? "Switch to light mode" : "Switch to dark mode"}
-                >
-                  {theme === 'dark' ? (
-                    <Sun className="w-5 h-5" />
-                  ) : (
-                    <Moon className="w-5 h-5" />
-                  )}
-                </button>
-              )}
             </div>
           </div>
         </div>
