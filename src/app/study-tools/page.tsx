@@ -3,7 +3,6 @@ import { OurTools } from "@/components/study-tools/OurTools"
 import { StudyPlaylists } from "@/components/study-tools/StudyPlaylists"
 import { ExternalTools } from "@/components/study-tools/ExternalTools"
 import { StudyTechniques } from "@/components/study-tools/StudyTechniques"
-import { Suggestion } from "@/components/study-tools/Suggestion"
 
 // Import data
 import { studyPlaylists } from "@/data/study-tools/playlists"
@@ -14,7 +13,7 @@ export default function StudyToolsPage() {
   return (
     <>
       <Sidebar>
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="container mx-auto px-4 py-8 max-w-5xl">
           <main className="space-y-12">
             <div>
               <h1 className="text-3xl font-bold mb-6">Study Tools</h1>
@@ -35,9 +34,6 @@ export default function StudyToolsPage() {
 
             {/* Study Techniques Section */}
             <StudyTechniques techniques={studyTechniques} />
-
-            {/* Suggestion Section */}
-            <Suggestion />
           </main>
         </div>
       </Sidebar>

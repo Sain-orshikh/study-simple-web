@@ -24,5 +24,10 @@ export const studyTechniques: StudyTechniqueType[] = [
     title: "Feynman Technique",
     description: "Explain concepts in simple language as if teaching someone else to identify gaps in your understanding.",
     tips: "Write explanations or teach peers to practice this method."
+  },
+  {
+    title: "SQ3R",
+    description: "Survey, Question, Read, Recite, and Review. A comprehensive reading and studying strategy to improve comprehension and retention.",
+    tips: "Use this for textbooks and complex reading materials to maximize understanding."
   }
 ];
