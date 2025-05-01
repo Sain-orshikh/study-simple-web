@@ -5,12 +5,12 @@ import Blog from '@/models/blog';
 // Route for handling comments on a specific blog
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
     await connectDB();
     
-    const blogId = context.params.id;
+    const blogId = params.id;
     const blog = await Blog.findById(blogId);
     
     if (!blog) {
@@ -38,12 +38,12 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
     await connectDB();
     
-    const blogId = context.params.id;
+    const blogId = params.id;
     const { content, author } = await request.json();
     
     if (!content) {
@@ -72,6 +72,7 @@ export async function POST(
       updatedAt: new Date()
     };
     
+    // Remove the 'as any' type assertion which could cause type issues
     blog.comments.push(newComment as any);
     
     await blog.save();
