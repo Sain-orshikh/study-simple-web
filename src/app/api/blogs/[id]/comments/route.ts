@@ -1,23 +1,17 @@
-// @ts-expect-error - Next.js type error for route handler parameter structure
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Blog from '@/models/blog';
-import { useId } from 'react';
-
-type Props = {
-  params: { id: string }
-}
 
 // Route for handling comments on a specific blog
-// @ts-expect-error - Next.js type error for route handler parameter structure
-export async function GET(
-  request: NextRequest, 
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest) {
   try {
     await connectDB();
     
-    const blogId = params.id;
+    // Extract ID directly from URL path
+    const url = request.url;
+    const pathParts = url.split('/');
+    const blogId = pathParts[pathParts.indexOf('blogs') + 1];
+    
     const blog = await Blog.findById(blogId);
     
     if (!blog) {
@@ -43,15 +37,15 @@ export async function GET(
   }
 }
 
-// @ts-expect-error - Next.js type error for route handler parameter structure
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest) {
   try {
     await connectDB();
     
-    const blogId = params.id;
+    // Extract ID directly from URL path
+    const url = request.url;
+    const pathParts = url.split('/');
+    const blogId = pathParts[pathParts.indexOf('blogs') + 1];
+    
     const { content, author } = await request.json();
     
     if (!content) {
