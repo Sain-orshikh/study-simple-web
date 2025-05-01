@@ -2,20 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Blog from '@/models/blog';
 
-interface RouteParams {
-  params: {
-    id: string;
-  }
+type Props = {
+  params: Promise<{ id: string }>
 }
 
 // Route for handling comments on a specific blog
 export async function GET(
-  request: NextRequest,
-  { params }: RouteParams
+  request: NextRequest, 
+  props: Props
 ) {
   try {
     await connectDB();
     
+    const params = await props.params;
     const blogId = params.id;
     const blog = await Blog.findById(blogId);
     
@@ -44,11 +43,12 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: RouteParams
+  props: Props
 ) {
   try {
     await connectDB();
     
+    const params = await props.params;
     const blogId = params.id;
     const { content, author } = await request.json();
     

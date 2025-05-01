@@ -5,7 +5,7 @@ import { Readable } from 'stream';
 
 // Define proper typing for dynamic route parameters
 type Props = {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 // Configure Cloudinary
@@ -20,11 +20,12 @@ import Blog from '@/models/blog';
 
 export async function GET(
   request: NextRequest,
-  { params }: Props
+  props: Props
 ) {
   try {
     await connectDB();
     
+    const params = await props.params;
     const blogId = params.id;
     const blog = await Blog.findById(blogId);
     
@@ -47,11 +48,12 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: Props
+  props: Props
 ) {
   try {
     await connectDB();
     
+    const params = await props.params;
     const blogId = params.id;
     const blog = await Blog.findById(blogId);
     
@@ -79,11 +81,12 @@ export async function DELETE(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: Props
+  props: Props
 ) {
   try {
     await connectDB();
     
+    const params = await props.params;
     const blogId = params.id;
     const blog = await Blog.findById(blogId);
     
