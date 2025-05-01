@@ -2,15 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Blog from '@/models/blog';
 
-// Define proper typing for dynamic route parameters
-type Props = {
-  params: { id: string }
+interface RouteParams {
+  params: {
+    id: string;
+  }
 }
 
 // Route for handling comments on a specific blog
 export async function GET(
   request: NextRequest,
-  { params }: Props
+  { params }: RouteParams
 ) {
   try {
     await connectDB();
@@ -43,7 +44,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: Props
+  { params }: RouteParams
 ) {
   try {
     await connectDB();
