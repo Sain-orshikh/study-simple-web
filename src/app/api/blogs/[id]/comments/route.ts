@@ -5,13 +5,13 @@ import Blog from '@/models/blog';
 // Route for handling comments on a specific blog
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
     
-    const blogId = params.id;
-    const blog = await Blog.findById(blogId);
+    const { id } = await params;
+    const blog = await Blog.findById(id);
     
     if (!blog) {
       return NextResponse.json(
@@ -38,12 +38,12 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
     
-    const blogId = params.id;
+    const { id } = await params;
     const { content, author } = await request.json();
     
     if (!content) {
@@ -56,7 +56,7 @@ export async function POST(
       );
     }
     
-    const blog = await Blog.findById(blogId);
+    const blog = await Blog.findById(id);
     if (!blog) {
       return NextResponse.json(
         { error: "Blog not found" },
