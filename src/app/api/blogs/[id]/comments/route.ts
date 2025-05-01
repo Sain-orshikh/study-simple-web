@@ -1,17 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Blog from '@/models/blog';
+import { use } from 'react';
+
+type Props = {
+  params: Promise<{ id: string }>
+}
 
 // Route for handling comments on a specific blog
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest, 
+  {params}: {params: Promise<{ id: string }>}
+) {
   try {
     await connectDB();
     
-    const url = request.url;
-    const pathParts = url.split('/');
-    const blogId = pathParts[pathParts.indexOf('blogs') + 1];
-    
-    const blog = await Blog.findById(blogId);
+    const { id } = use(params);
+    const blog = await Blog.findById(id);
     
     if (!blog) {
       return NextResponse.json(
@@ -36,15 +41,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest,
+  props: Props
+) {
   try {
     await connectDB();
     
-    // Extract ID directly from URL path
-    const url = request.url;
-    const pathParts = url.split('/');
-    const blogId = pathParts[pathParts.indexOf('blogs') + 1];
-    
+    const { id } = use(props.params);
     const { content, author } = await request.json();
     
     if (!content) {
@@ -57,7 +61,7 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const blog = await Blog.findById(blogId);
+    const blog = await Blog.findById(id);
     if (!blog) {
       return NextResponse.json(
         { error: "Blog not found" },
@@ -73,7 +77,7 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date()
     };
     
-    blog.comments.push(newComment);
+    blog.comments.push(newComment as any);
     
     await blog.save();
     
