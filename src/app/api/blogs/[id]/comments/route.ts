@@ -2,19 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Blog from '@/models/blog';
 
-type Props = {
-  params: Promise<{ id: string }>
-}
-
 // Route for handling comments on a specific blog
 export async function GET(
-  request: NextRequest, 
-  props: Props
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   try {
     await connectDB();
     
-    const params = await props.params;
     const blogId = params.id;
     const blog = await Blog.findById(blogId);
     
@@ -43,12 +38,11 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  props: Props
+  { params }: { params: { id: string } }
 ) {
   try {
     await connectDB();
     
-    const params = await props.params;
     const blogId = params.id;
     const { content, author } = await request.json();
     
@@ -78,8 +72,7 @@ export async function POST(
       updatedAt: new Date()
     };
     
-    // Remove the 'as any' type assertion which could cause type issues
-    blog.comments.push(newComment as any);
+    blog.comments.push(newComment);
     
     await blog.save();
     
