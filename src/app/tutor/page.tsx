@@ -30,7 +30,7 @@ export default function TutorPage() {
                 </div>
                 
                 <p className="text-lg mb-6 text-gray-700">
-                  Our tutoring program is currently closed for the school year break. We'll be back in the next school year with more tutors ready to help you succeed!
+                  Our tutoring program is currently closed for the school year break. We&apos;ll be back in the next school year with more tutors ready to help you succeed!
                 </p>
                 
                 <div className="flex items-center justify-center space-x-2 text-gray-600 mb-6">

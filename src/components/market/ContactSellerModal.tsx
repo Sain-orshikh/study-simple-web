@@ -34,24 +34,24 @@ export function ContactSellerModal({
     e.preventDefault();
     
     if (!name) {
-      toast.error('Please enter your name');
+      toast.error("Please enter your name");
       return;
     }
 
     if (!email) {
-      toast.error('Please enter your email address');
+      toast.error("Please enter your email address");
       return;
     }
     
     if (!message) {
-      toast.error('Please enter a message');
+      toast.error("Please enter a message");
       return;
     }
     
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      toast.error('Please enter a valid email address');
+      toast.error("Please enter a valid email address");
       return;
     }
     
@@ -77,15 +77,15 @@ export function ContactSellerModal({
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send message');
+        throw new Error(errorData.error || "Failed to send message");
       }
       
       resetForm();
-      toast.success('Message sent to seller successfully!');
+      toast.success("Message sent to seller successfully!");
       onClose();
     } catch (error) {
-      console.error('Error sending message:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to send message');
+      console.error("Error sending message:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to send message");
     } finally {
       setIsSubmitting(false);
     }
@@ -122,7 +122,7 @@ export function ContactSellerModal({
         </div>
         
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Enter your details to express interest in "{item?.name}". The seller will be notified about your interest.
+          Enter your details to express interest in &quot;{item?.name}&quot;. The seller will be notified about your interest.
         </Typography>
         
         <form onSubmit={handleSubmit}>

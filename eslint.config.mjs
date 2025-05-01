@@ -18,7 +18,9 @@ const eslintConfig = [
       // Disable unused vars error
       "@typescript-eslint/no-unused-vars": "off",
       // Disable require-style imports error
-      "@typescript-eslint/no-require-imports": "off"
+      "@typescript-eslint/no-require-imports": "off",
+      // Disable unescaped entities warning
+      "react/no-unescaped-entities": "off"
     },
   }
 ];

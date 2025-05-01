@@ -31,7 +31,7 @@ export default function SchoolClubsPage() {
                 </div>
                 
                 <p className="text-lg mb-6 text-gray-700">
-                  Our clubs program is currently closed for the season. We'll be back in autumn with exciting new club opportunities!
+                  Our clubs program is currently closed for the season. We&apos;ll be back in autumn with exciting new club opportunities!
                 </p>
                 
                 <div className="flex items-center justify-center space-x-2 text-gray-600 mb-6">

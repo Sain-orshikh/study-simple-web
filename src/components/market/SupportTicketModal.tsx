@@ -98,7 +98,7 @@ export function SupportTicketModal({
         
         <p className="text-sm text-gray-600 mb-4">
           Submit a ticket to our support team for any issues or questions about the marketplace.
-          We'll respond to you via email as soon as possible.
+          We&apos;ll respond to you via email as soon as possible.
         </p>
         
         <form onSubmit={handleSubmit}>
