@@ -1,6 +1,5 @@
 "use client"
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { MarketItem } from "./ItemCard"
 import toast from "react-hot-toast"
@@ -25,221 +24,145 @@ interface ContactSellerData {
 }
 
 export function useMarketItems(options: FetchMarketItemsOptions = {}) {
-  const queryClient = useQueryClient()
   const { category, search } = options
   
   // State for the listing ID alert
   const [createdListingId, setCreatedListingId] = useState<string | null>(null);
   const [showListingIdAlert, setShowListingIdAlert] = useState(false);
+  const [items, setItems] = useState<MarketItem[]>([]);
+  const [isLoading, setLoading] = useState(false);
+  const [isError, setError] = useState<string | null>(null);
 
-  // Construct query key based on filters
-  const queryKey = ['marketItems', { category, search }]
-
-  // Fetch market items from the backend API
-  const {
-    data: items,
-    isLoading,
-    isError,
-    error
-  } = useQuery({
-    queryKey,
-    queryFn: async () => {
-      try {
-        // Build URL with query parameters if they exist
-        let url = "http://localhost:5000/api/listings/fetch"
-        const params = new URLSearchParams()
-        
-        if (category && category !== "All") {
-          params.append("category", category)
-        }
-        
-        if (search) {
-          params.append("search", search)
-        }
-        
-        if (params.toString()) {
-          url += `?${params.toString()}`
-        }
-        
-        const response = await fetch(url)
-        
-        if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(errorData.message || "Failed to fetch listings")
-        }
-        
-        const data = await response.json()
-        return data.data as MarketItem[]
-      } catch (error) {
-        console.error("Error fetching market items:", error)
-        throw error
-      }
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  })
-
-  // Fetch a single listing by ID
-  const fetchListingById = async (id: string): Promise<MarketItem | null> => {
+  const fetchItems = async (category?: string) => {
+    setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/listings/fetch/${id}`)
-      
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.message || "Failed to fetch listing")
-      }
-      
-      return await response.json()
+        let url = "/api/listings"
+        if (category) {
+            url += `?category=${category}`;
+        }
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Failed to fetch listings');
+        }
+        
+        const data = await response.json();
+        setItems(data.data);
+        return data.data;
     } catch (error) {
-      console.error("Error fetching listing by ID:", error)
-      return null
+        console.error('Error fetching market items:', error);
+        toast.error('Failed to load market items');
+        setError('Failed to load market items');
+    } finally {
+        setLoading(false);
     }
-  }
+  };
 
-  // Mutation for creating a new listing
-  const createListing = useMutation({
-    mutationFn: async (formData: FormData) => {
-      try {
-        const response = await fetch("http://localhost:5000/api/listings/create", {
-          method: "POST",
-          body: formData,
-        })
-        
-        if (!response.ok) {
-          const error = await response.json()
-          throw new Error(error.message || "Failed to create listing")
-        }
-        
-        return await response.json()
-      } catch (error) {
-        console.error("Error creating listing:", error)
-        throw error
+  const fetchItemById = async (id: string) => {
+    try {
+      const response = await fetch(`/api/listings/${id}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch item details');
       }
-    },
-    onSuccess: (result) => {
-      // Show the listing ID to the user using the new component
-      setCreatedListingId(result.listingId);
-      setShowListingIdAlert(true);
-      
-      // Invalidate queries to refetch data with new filters
-      queryClient.invalidateQueries({ queryKey: ['marketItems'] })
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to list item. Please try again.")
+      const item = await response.json();
+      return item;
+    } catch (error) {
+      console.error('Error fetching item details:', error);
+      toast.error('Failed to load item details');
+      throw error;
     }
-  })
+  };
 
-  // Mutation for updating an existing listing
-  const updateListing = useMutation({
-    mutationFn: async ({ listingId, formData }: { listingId: string, formData: FormData }) => {
-      try {
-        const response = await fetch(`http://localhost:5000/api/listings/update/${listingId}`, {
-          method: "PUT",
-          body: formData,
-        })
-        
+  const createListing = async (formData: FormData) => {
+    try {
+        const response = await fetch("/api/listings", {
+            method: "POST",
+            body: formData,
+        });
+
         if (!response.ok) {
-          const error = await response.json()
-          throw new Error(error.message || "Failed to update listing")
+            throw new Error('Failed to create listing');
         }
-        
-        return await response.json()
-      } catch (error) {
-        console.error("Error updating listing:", error)
-        throw error
-      }
-    },
-    onSuccess: (result) => {
-      toast.success("Item updated successfully!")
-      
-      // Invalidate queries to refetch data with new filters
-      queryClient.invalidateQueries({ queryKey: ['marketItems'] })
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to update item. Please try again.")
-    }
-  })
 
-  // Mutation for submitting a support ticket
-  const submitSupportTicket = useMutation({
-    mutationFn: async (data: SupportTicket) => {
-      try {
-        const response = await fetch("http://localhost:5000/api/support/submit", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        })
-        
+        const data = await response.json();
+        fetchItems(); // Refresh the listings
+        return data;
+    } catch (error) {
+        console.error('Error creating listing:', error);
+        toast.error('Failed to create listing');
+        throw error;
+    }
+  };
+
+  const updateListing = async (listingId: string, formData: FormData) => {
+    try {
+        const response = await fetch(`/api/listings/${listingId}`, {
+            method: "PATCH",
+            body: formData,
+        });
+
         if (!response.ok) {
-          const error = await response.json()
-          throw new Error(error.message || "Failed to submit support ticket")
+            throw new Error('Failed to update listing');
         }
-        
-        return await response.json()
-      } catch (error) {
-        console.error("Error submitting support ticket:", error)
-        throw error
-      }
-    },
-    onSuccess: (result) => {
-      toast.success(result.message || "Support ticket submitted successfully!")
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to submit support ticket. Please try again.")
-    }
-  })
 
-  // Mutation for contacting seller (client-side only)
-  const contactSeller = useMutation({
-    mutationFn: async (item: MarketItem) => {
-      // This is a client-side only action
-      // Create contact info string to display
-      let contactInfo = "Seller contact information:\n";
-      if (item.email) contactInfo += `Email: ${item.email}\n`;
-      if (item.phoneNumber) contactInfo += `Phone: ${item.phoneNumber}\n`;
-      if (item.facebookUsername) contactInfo += `Facebook: ${item.facebookUsername}\n`;
-      
-      // Show contact info to the user
-      
-      return { success: true, item };
-    },
-    onError: () => {
-      toast.error("Failed to retrieve contact information. Please try again.")
+        const data = await response.json();
+        fetchItems(); // Refresh the listings
+        return data;
+    } catch (error) {
+        console.error('Error updating listing:', error);
+        toast.error('Failed to update listing');
+        throw error;
     }
-  })
+  };
 
-  // Mutation for sending an email to the seller
-  const sendSellerEmail = useMutation({
-    mutationFn: async (data: ContactSellerData) => {
-      try {
-        const response = await fetch("http://localhost:5000/api/seller/contact", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        })
-        
+  const submitSupportRequest = async (formData: SupportTicket) => {
+    try {
+        const response = await fetch("/api/support", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+        });
+
         if (!response.ok) {
-          const error = await response.json()
-          throw new Error(error.message || "Failed to send email to seller")
+            throw new Error('Failed to submit support request');
         }
-        
-        return await response.json()
-      } catch (error) {
-        console.error("Error sending email to seller:", error)
-        throw error
-      }
-    },
-    onSuccess: (result) => {
-      toast.success(result.message || "Email sent to seller successfully!")
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to send email to seller. Please try again.")
+
+        const data = await response.json();
+        toast.success('Support request submitted successfully');
+        return data;
+    } catch (error) {
+        console.error('Error submitting support request:', error);
+        toast.error('Failed to submit support request');
+        throw error;
     }
-  })
-  
+  };
+
+  const contactSeller = async (contactData: ContactSellerData) => {
+    try {
+        const response = await fetch("/api/tutors/contact", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(contactData),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to send message to seller');
+        }
+
+        const data = await response.json();
+        toast.success('Message sent successfully');
+        return data;
+    } catch (error) {
+        console.error('Error contacting seller:', error);
+        toast.error('Failed to send message to seller');
+        throw error;
+    }
+  };
+
   // Handle closing the listing ID alert
   const handleCloseListingIdAlert = () => {
     setShowListingIdAlert(false);
@@ -249,18 +172,11 @@ export function useMarketItems(options: FetchMarketItemsOptions = {}) {
     items,
     isLoading,
     isError,
-    error,
-    createListing: createListing.mutate,
-    isCreatingListing: createListing.isPending,
-    updateListing: updateListing.mutate,
-    isUpdatingListing: updateListing.isPending,
-    fetchListingById,
-    contactSeller: contactSeller.mutate,
-    isContactingSeller: contactSeller.isPending,
-    submitSupportTicket: submitSupportTicket.mutate,
-    isSubmittingSupportTicket: submitSupportTicket.isPending,
-    sendSellerEmail: sendSellerEmail.mutate,
-    isSendingSellerEmail: sendSellerEmail.isPending,
+    createListing,
+    updateListing,
+    fetchItemById,
+    contactSeller,
+    submitSupportRequest,
     // Return state and handlers for the listing ID alert
     createdListingId,
     showListingIdAlert,

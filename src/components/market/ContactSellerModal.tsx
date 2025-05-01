@@ -14,11 +14,15 @@ export function ContactSellerModal({
   onClose,
   item
 }: ContactSellerModalProps) {
-  const [buyerEmail, setBuyerEmail] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const resetForm = () => {
-    setBuyerEmail("");
+    setName("");
+    setEmail("");
+    setMessage("");
   };
 
   const handleClose = () => {
@@ -26,55 +30,40 @@ export function ContactSellerModal({
     onClose();
   };
 
-  const isFormValid = () => {
-    if (!buyerEmail) {
-      toast.error("Please enter your email address");
-      return false;
-    }
-    
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(buyerEmail)) {
-      toast.error("Please enter a valid email address");
-      return false;
-    }
-    
-    return true;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!isFormValid()) return;
+    if (!message) {
+      toast.error('Please enter a message');
+      return;
+    }
     
     setIsSubmitting(true);
     
     try {
-      // Send the email via API
-      const response = await fetch("http://localhost:5000/api/listings/contact-seller", {
-        method: "POST",
+      const response = await fetch("/api/listings/contact", {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          itemName: item.name,
-          buyerEmail,
-          sellerEmail: item.email,
-          message: `I'm interested in your item "${item.name}". Please contact me at ${buyerEmail}.`
+          listingId: item._id,
+          name,
+          email,
+          message,
         }),
       });
       
-      const data = await response.json();
-      
-      if (data.success) {
-        toast.success("Email sent successfully! The seller will contact you soon.");
-        handleClose();
-      } else {
-        toast.error(data.error || "Failed to send email. Please try again.");
+      if (!response.ok) {
+        throw new Error('Failed to send message');
       }
+      
+      setMessage('');
+      toast.success('Message sent to seller successfully!');
+      onClose();
     } catch (error) {
-      console.error("Error sending email:", error);
-      toast.error("An error occurred while sending the email. Please try again.");
+      console.error('Error sending message:', error);
+      toast.error('Failed to send message');
     } finally {
       setIsSubmitting(false);
     }
@@ -111,20 +100,36 @@ export function ContactSellerModal({
         </div>
         
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Enter your email address to express interest in "{item?.name}". The seller will be notified about your interest.
+          Enter your details to express interest in "{item?.name}". The seller will be notified about your interest.
         </Typography>
         
         <form onSubmit={handleSubmit}>
           <TextField
+            label="Your Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            fullWidth
+            required
+            margin="normal"
+          />
+          <TextField
             label="Your Email Address"
-            value={buyerEmail}
-            onChange={(e) => setBuyerEmail(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             fullWidth
             required
             margin="normal"
             type="email"
-            error={buyerEmail !== "" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(buyerEmail)}
-            helperText={buyerEmail !== "" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(buyerEmail) ? "Please enter a valid email address" : ""}
+          />
+          <TextField
+            label="Message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            fullWidth
+            required
+            margin="normal"
+            multiline
+            rows={4}
           />
           
           <div className="flex justify-end gap-2 mt-4">

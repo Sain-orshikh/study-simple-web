@@ -50,7 +50,7 @@ const BlogCard: React.FC<{ blog: Blog, isPreview: boolean }> = ({ blog, isPrevie
       // If already liked, decrement the like count (unlike)
       if (result === 'unliked') {
         // Call the API to decrement the like
-        const response = await fetch(`http://localhost:5000/api/blogs/unlike/${blog._id}`, {
+        const response = await fetch(`/api/blogs/${blog._id}/unlike`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ const BlogCard: React.FC<{ blog: Blog, isPreview: boolean }> = ({ blog, isPrevie
         }
         
         // Call the API to add/increment the like
-        const response = await fetch(`http://localhost:5000/api/blogs/like/${blog._id}`, {
+        const response = await fetch(`/api/blogs/${blog._id}/like`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -102,7 +102,7 @@ const BlogCard: React.FC<{ blog: Blog, isPreview: boolean }> = ({ blog, isPrevie
       // If disliked and was previously liked, we need to decrement the like count
       if (result === 'disliked' && isLiked) {
         // Call API to handle the dislike (which should also handle removing the like)
-        const response = await fetch(`http://localhost:5000/api/blogs/dislike/${blog._id}`, {
+        const response = await fetch(`/api/blogs/${blog._id}/dislike`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

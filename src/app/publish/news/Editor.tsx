@@ -171,8 +171,8 @@ const Editor = () => {
     }
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     const content = editor?.getHTML() || ""; // Get the HTML content from the editor
     console.log("Image:", image);
     console.log("Title:", title);
@@ -190,9 +190,19 @@ const Editor = () => {
     formData.append('category', category); // Append the category
 
     try {
-      const response = await fetch('http://localhost:5000/api/blogs/create', {
+      setLoading(true);
+      const response = await fetch('/api/blogs', {
         method: 'POST',
-        body: formData, // Send the FormData as the request body
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title,
+          content: editorContent,
+          image: imageUrl,
+          author,
+          category
+        }),
       });
 
       const data = await response.json();

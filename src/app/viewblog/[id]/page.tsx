@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
 import toast, { Toaster } from 'react-hot-toast';
 import Sidebar from "@/components/sidebar/sidebar"
 import { Button } from '@/components/ui/button';
@@ -11,14 +10,6 @@ import { Input } from '@/components/ui/input';
 import { BiSolidHeartSquare, BiCommentDetail, BiSend, BiDislike } from "react-icons/bi";
 import { BsShare } from "react-icons/bs";
 import { format, parseISO } from 'date-fns';
-import { useAtom } from 'jotai';
-import { 
-  blogInteractions, 
-  toggleBlogLike, 
-  toggleBlogDislike,
-  isBlogLiked,
-  isBlogDisliked
-} from '@/components/themeatom';
 
 interface Comment {
   _id: string;
@@ -29,164 +20,133 @@ interface Comment {
 
 const ViewBlogPage = () => {
   const { id } = useParams(); // Extract the id from the URL
-  const queryClient = useQueryClient();
-  const [comment, setComment] = useState('');
+  const [blog, setBlog] = useState(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [likesCount, setLikesCount] = useState(0);
+  const [userLikeState, setUserLikeState] = useState<'liked' | 'disliked' | 'none'>('none');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [commentText, setCommentText] = useState('');
   const [commentAuthor, setCommentAuthor] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [localLikes, setLocalLikes] = useState(0);
-  const [isProcessing, setIsProcessing] = useState(false);
-  
-  // Get blog interaction state from global state
-  const [, doToggleLike] = useAtom(toggleBlogLike);
-  const [, doToggleDislike] = useAtom(toggleBlogDislike);
-  const [getLiked] = useAtom(isBlogLiked);
-  const [getDisliked] = useAtom(isBlogDisliked);
-  
-  const isLiked = id ? getLiked(id as string) : false;
-  const isDisliked = id ? getDisliked(id as string) : false;
+  const [submittingComment, setSubmittingComment] = useState(false);
+  const [likeProcessing, setLikeProcessing] = useState(false);
 
-  if (!id) return <div><Sidebar>Loading...</Sidebar></div>;
-
-  const { data: blog, error, isLoading } = useQuery({
-    queryKey: ["blogInfo", id],
-    queryFn: async () => {
-      try {
-        const res = await fetch(`http://localhost:5000/api/blogs/fetch/${id}`);
-        const data = await res.json();
-        if (!res.ok) {
-            throw new Error(data.error || "Failed to fetch blog");
-        }
-        return data;
-      } catch (error) {
-        throw new Error((error as Error).message || String(error));
-      }
-    },
-    enabled: !!id,
-  });
-
-  // Set likes when blog data is loaded
   useEffect(() => {
-    if (blog) {
-      setLocalLikes(blog.likes || 0);
-    }
-  }, [blog]);
-
-  const { data: comments = [], refetch: refetchComments } = useQuery({
-    queryKey: ["blogComments", id],
-    queryFn: async () => {
+    async function fetchBlog() {
       try {
-        const res = await fetch(`http://localhost:5000/api/blogs/comments/${id}`);
-        const data = await res.json();
+        setLoading(true);
+        const res = await fetch(`/api/blogs/${id}`);
         if (!res.ok) {
-          throw new Error(data.error || "Failed to fetch comments");
+          throw new Error('Failed to fetch blog');
         }
-        return data.comments || [];
+        const blogData = await res.json();
+        setBlog(blogData);
+        setLikesCount(blogData.likes || 0);
       } catch (error) {
-        console.error("Error fetching comments:", error);
-        return [];
+        console.error('Error fetching blog:', error);
+        setError('Failed to load blog');
+      } finally {
+        setLoading(false);
       }
-    },
-    enabled: !!id,
-  });
+    }
+
+    async function fetchComments() {
+      try {
+        const res = await fetch(`/api/blogs/${id}/comments`);
+        if (!res.ok) {
+          throw new Error('Failed to fetch comments');
+        }
+        const data = await res.json();
+        setComments(data.comments || []);
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+      }
+    }
+
+    if (id) {
+      fetchBlog();
+      fetchComments();
+    }
+  }, [id]);
 
   const handleLike = async () => {
-    if (isProcessing) return;
-    
     try {
-      setIsProcessing(true);
+      setLikeProcessing(true);
+      const response = await fetch(`/api/blogs/${id}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       
-      // Toggle like in local state
-      const result = doToggleLike(id as string);
-      
-      // If already liked, decrement the like count (unlike)
-      if (result === 'unliked') {
-        // Call the API to decrement the like
-        const response = await fetch(`http://localhost:5000/api/blogs/unlike/${id}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
-        
-        const data = await response.json();
-        if (data.success) {
-          setLocalLikes(data.likes);
-          toast.success('Removed your like');
-        }
-      } 
-      // If not already liked, increment the like count
-      else if (result === 'liked') {
-        // If was disliked, we need to update backend dislike count too
-        if (isDisliked) {
-          // No need to call dislike API here since we handle it in the like API
-        }
-        
-        // Call the API to add/increment the like
-        const response = await fetch(`http://localhost:5000/api/blogs/like/${id}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
-        
-        const data = await response.json();
-        if (data.success) {
-          setLocalLikes(data.likes);
-          toast.success('Thanks for liking this post!');
-        }
+      if (!response.ok) {
+        throw new Error('Failed to like blog');
       }
       
-      // Invalidate blog query to refresh data
-      queryClient.invalidateQueries({ queryKey: ["blogInfo", id] });
+      const data = await response.json();
+      setLikesCount(data.likes);
+      setUserLikeState('liked');
+      toast.success('Thanks for your like!');
     } catch (error) {
-      console.error("Error handling like:", error);
+      console.error('Error liking blog:', error);
       toast.error('Failed to update like status');
     } finally {
-      setIsProcessing(false);
+      setLikeProcessing(false);
     }
   };
-  
-  const handleDislike = async () => {
-    if (isProcessing) return;
-    
+
+  const handleUnlike = async () => {
     try {
-      setIsProcessing(true);
-      
-      // Toggle dislike in local state
-      const result = doToggleDislike(id as string);
-      
-      // If disliked and was previously liked, we need to decrement the like count
-      if (result === 'disliked' && isLiked) {
-        // Call API to handle the dislike (which should also handle removing the like)
-        const response = await fetch(`http://localhost:5000/api/blogs/dislike/${id}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
-        
-        const data = await response.json();
-        if (data.success) {
-          setLocalLikes(data.likes);
-          toast.success('Post disliked');
+      setLikeProcessing(true);
+      const response = await fetch(`/api/blogs/${id}/unlike`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
         }
-      } 
-      // If undisliked, no change to like count needed
-      else if (result === 'undisliked') {
-        toast.success('Dislike removed');
-        // No API call needed here as we don't track dislikes count in backend
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to unlike blog');
       }
       
-      // Invalidate blog query to refresh data
-      queryClient.invalidateQueries({ queryKey: ["blogInfo", id] });
+      const data = await response.json();
+      setLikesCount(data.likes);
+      setUserLikeState('none');
+      toast.success('Removed your like');
     } catch (error) {
-      console.error("Error handling dislike:", error);
-      toast.error('Failed to update dislike status');
+      console.error('Error unliking blog:', error);
+      toast.error('Failed to update like status');
     } finally {
-      setIsProcessing(false);
+      setLikeProcessing(false);
     }
   };
-  
+
+  const handleDislike = async () => {
+    try {
+      setLikeProcessing(true);
+      const response = await fetch(`/api/blogs/${id}/dislike`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to dislike blog');
+      }
+      
+      const data = await response.json();
+      setLikesCount(data.likes);
+      setUserLikeState('disliked');
+      toast.success('Noted your dislike');
+    } catch (error) {
+      console.error('Error disliking blog:', error);
+      toast.error('Failed to update like status');
+    } finally {
+      setLikeProcessing(false);
+    }
+  };
+
   const handleShare = () => {
     // Get current URL
     const blogUrl = window.location.href;
@@ -223,41 +183,43 @@ const ViewBlogPage = () => {
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!comment.trim()) {
+    if (!commentText.trim()) {
       toast.error('Comment cannot be empty');
       return;
     }
     
     try {
-      setIsSubmitting(true);
-      const response = await fetch(`http://localhost:5000/api/blogs/comment/${id}`, {
+      setSubmittingComment(true);
+      const response = await fetch(`/api/blogs/${id}/comments`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          content: comment,
-          author: commentAuthor.trim() || 'Anonymous'
+          content: commentText,
+          author: commentAuthor || 'Anonymous'
         })
       });
       
-      const data = await response.json();
-      
-      if (data.success) {
-        toast.success('Comment added successfully');
-        setComment('');
-        // Refetch comments to show the new one
-        refetchComments();
-        // Invalidate blog query to refresh data
-        queryClient.invalidateQueries({ queryKey: ["blogInfo", id] });
-      } else {
-        toast.error(data.error || 'Failed to add comment');
+      if (!response.ok) {
+        throw new Error('Failed to submit comment');
       }
+      
+      const result = await response.json();
+      
+      // Update comments with the new comment
+      setComments([...comments, result.comment]);
+      
+      // Reset form
+      setCommentText('');
+      setCommentAuthor('');
+      toast.success('Comment added successfully!');
+      
     } catch (error) {
-      console.error("Error adding comment:", error);
+      console.error('Error submitting comment:', error);
       toast.error('Failed to add comment');
     } finally {
-      setIsSubmitting(false);
+      setSubmittingComment(false);
     }
   };
 
@@ -271,7 +233,7 @@ const ViewBlogPage = () => {
 
   const fallbackImage = "https://shorturl.at/6w7NB";
 
-  if (isLoading) {
+  if (loading) {
     return (
       <>
         <Sidebar>
@@ -287,7 +249,7 @@ const ViewBlogPage = () => {
     <>
       <Toaster />
       <Sidebar>
-      {error && <div className="text-red-500 text-center p-4">{(error as Error).message}</div>}
+      {error && <div className="text-red-500 text-center p-4">{error}</div>}
       <div className='w-full bg-white pb-10 dark:bg-gray-900'>
         <div className="relative w-[90%] sm:w-[60%] mx-auto bg-white dark:bg-gray-900">
           {/* Blog Header */}
@@ -304,30 +266,30 @@ const ViewBlogPage = () => {
               
               <div className="flex space-x-2">
                 <button
-                  onClick={handleLike}
+                  onClick={userLikeState === 'liked' ? handleUnlike : handleLike}
                   className={`flex items-center px-2 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
-                    isLiked 
+                    userLikeState === 'liked' 
                       ? 'text-red-500 dark:text-red-400' 
                       : 'text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400'
                   }`}
-                  disabled={isProcessing}
-                  aria-label={isLiked ? "Unlike" : "Like"}
+                  disabled={likeProcessing}
+                  aria-label={userLikeState === 'liked' ? "Unlike" : "Like"}
                 >
-                  <BiSolidHeartSquare className={`mr-1 ${isProcessing ? 'animate-pulse' : ''}`} size={18} />
-                  <span className="text-sm">{localLikes}</span>
+                  <BiSolidHeartSquare className={`mr-1 ${likeProcessing ? 'animate-pulse' : ''}`} size={18} />
+                  <span className="text-sm">{likesCount}</span>
                 </button>
                 
                 <button
                   onClick={handleDislike}
                   className={`flex items-center px-2 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
-                    isDisliked 
+                    userLikeState === 'disliked' 
                       ? 'text-blue-500 dark:text-blue-400' 
                       : 'text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400'
                   }`}
-                  disabled={isProcessing}
-                  aria-label={isDisliked ? "Remove dislike" : "Dislike"}
+                  disabled={likeProcessing}
+                  aria-label={userLikeState === 'disliked' ? "Remove dislike" : "Dislike"}
                 >
-                  <BiDislike className={`${isProcessing ? 'animate-pulse' : ''}`} size={18} />
+                  <BiDislike className={`${likeProcessing ? 'animate-pulse' : ''}`} size={18} />
                 </button>
                 
                 <button
@@ -389,8 +351,8 @@ const ViewBlogPage = () => {
                 />
                 <Textarea
                   placeholder="Write a comment..."
-                  value={comment}
-                  onChange={e => setComment(e.target.value)}
+                  value={commentText}
+                  onChange={e => setCommentText(e.target.value)}
                   rows={4}
                   className="w-full p-3 border rounded-md"
                   required
@@ -399,10 +361,10 @@ const ViewBlogPage = () => {
               <Button 
                 type="submit" 
                 className="flex items-center" 
-                disabled={isSubmitting}
+                disabled={submittingComment}
               >
                 <BiSend className="mr-2" />
-                {isSubmitting ? 'Submitting...' : 'Post Comment'}
+                {submittingComment ? 'Submitting...' : 'Post Comment'}
               </Button>
             </form>
             

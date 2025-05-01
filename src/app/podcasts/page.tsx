@@ -5,101 +5,84 @@ import { useSearchParams } from 'next/navigation';
 import Sidebar from "@/components/sidebar/sidebar"
 import PodcastPlayer from '@/components/PodcastPlayer';
 import { FaHeadphones, FaBell, FaRegCheckCircle, FaTimes, FaSpinner, FaExclamationCircle } from 'react-icons/fa';
-import { useMutation } from '@tanstack/react-query';
+import { toast } from 'react-hot-toast';
 
 const PodcastPage = () => {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
+  const [unsubEmail, setUnsubEmail] = useState('');
   const [subscribeModal, setSubscribeModal] = useState(false);
   const [subscribeSuccess, setSubscribeSuccess] = useState(false);
   const [subscribeError, setSubscribeError] = useState('');
   const [statusMessage, setStatusMessage] = useState({ type: '', message: '' });
+  const [loading, setLoading] = useState(false);
+  const [unsubLoading, setUnsubLoading] = useState(false);
+  const [showUnsubForm, setShowUnsubForm] = useState(false);
 
-  // Unsubscribe mutation
-  const unsubscribeMutation = useMutation({
-    mutationFn: async (emailToUnsubscribe: string) => {
-      const response = await fetch('http://localhost:5000/api/podcast-subscribers/unsubscribe', {
+  const handleUnsubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!unsubEmail) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    
+    setUnsubLoading(true);
+    try {
+      const response = await fetch('/api/podcast-subscribers/unsubscribe', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: emailToUnsubscribe }),
+        body: JSON.stringify({ email: unsubEmail }),
       });
       
       if (!response.ok) {
         throw new Error('Failed to unsubscribe');
       }
       
-      return response.json();
-    },
-    onSuccess: () => {
-      setStatusMessage({
-        type: 'success',
-        message: 'You have been successfully unsubscribed from podcast updates.'
-      });
-    },
-    onError: () => {
-      setStatusMessage({
-        type: 'error',
-        message: 'Failed to unsubscribe. Please try again later.'
-      });
+      toast.success("You've been unsubscribed successfully");
+      setUnsubEmail('');
+      setShowUnsubForm(false);
+    } catch (error) {
+      console.error("Error unsubscribing:", error);
+      toast.error("Failed to unsubscribe. Please try again.");
+    } finally {
+      setUnsubLoading(false);
     }
-  });
+  };
 
-  // Subscribe mutation
-  const subscribeMutation = useMutation({
-    mutationFn: async (subscriberEmail: string) => {
-      const response = await fetch('http://localhost:5000/api/podcast-subscribers/subscribe', {
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email) {
+      toast.error("Please enter your email address");
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const response = await fetch('/api/podcast-subscribers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email: subscriberEmail }),
+        body: JSON.stringify({ email }),
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to subscribe');
+        throw new Error('Failed to subscribe');
       }
       
-      return response.json();
-    },
-    onSuccess: () => {
-      setSubscribeSuccess(true);
-      
-      // Reset after 3 seconds
-      setTimeout(() => {
-        setSubscribeModal(false);
-        setEmail('');
-        setSubscribeSuccess(false);
-      }, 3000);
-    },
-    onError: (error: any) => {
-      setSubscribeError(error.message || 'Failed to subscribe. Please try again.');
+      const data = await response.json();
+      toast.success(data.message || "Subscribed successfully!");
+      setEmail('');
+    } catch (error) {
+      console.error("Error subscribing:", error);
+      toast.error("Failed to subscribe. Please try again.");
+    } finally {
+      setLoading(false);
     }
-  });
-
-  // Check for unsubscribe parameter
-  useEffect(() => {
-    const emailParam = searchParams.get('email');
-    const action = searchParams.get('action');
-    
-    if (emailParam && action === 'unsubscribe') {
-      unsubscribeMutation.mutate(emailParam);
-    }
-  }, [searchParams]);
-
-  // Handle subscription form submission
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
-      setSubscribeError('Please enter a valid email address');
-      return;
-    }
-    
-    setSubscribeError('');
-    subscribeMutation.mutate(email);
   };
 
   const podcasts = [
@@ -265,7 +248,7 @@ const PodcastPage = () => {
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@example.com"
                         className={`w-full px-4 py-3 rounded-lg border ${subscribeError ? 'border-red-500' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                        disabled={subscribeMutation.isPending}
+                        disabled={loading}
                       />
                       {subscribeError && (
                         <p className="mt-1 text-sm text-red-600">{subscribeError}</p>
@@ -274,10 +257,10 @@ const PodcastPage = () => {
                     
                     <button
                       type="submit"
-                      disabled={subscribeMutation.isPending}
+                      disabled={loading}
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:bg-blue-400"
                     >
-                      {subscribeMutation.isPending ? (
+                      {loading ? (
                         <span className="flex items-center justify-center">
                           <FaSpinner className="animate-spin mr-2" />
                           Subscribing...

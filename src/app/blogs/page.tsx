@@ -17,7 +17,7 @@ export default function BlogsPage() {
   const {data:blogs, isLoading, isError} = useQuery({
     queryKey: ['blogs'],
     queryFn: async () => {
-      const res = await fetch("http://localhost:5000/api/blogs/fetch");
+      const res = await fetch("/api/blogs");
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to fetch blogs");
       return data;

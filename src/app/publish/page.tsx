@@ -1,98 +1,116 @@
 "use client"
 
 import { FaNewspaper, FaTrash, FaStore, FaTachometerAlt, FaClock } from "react-icons/fa";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import Sidebar from "@/components/sidebar/sidebar"
-import { useMutation, useQuery } from "@tanstack/react-query";
+import Sidebar from "@/components/sidebar/sidebar";
 import { Modal } from "@mui/material";
 import toast, { Toaster } from "react-hot-toast";
 
 const AdminPage = () => {
-  // Fetch blogs data
-  const {data:blogs, refetch: refetchBlogs} = useQuery({
-    queryKey: ['blogs'],
-    queryFn: async () => {
-      const res = await fetch("http://localhost:5000/api/blogs/fetch");
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to fetch blogs");
-      return data;
-    },
-  });
-
-  // Fetch listings data
-  const {data:listings, refetch: refetchListings} = useQuery({
-    queryKey: ['listings'],
-    queryFn: async () => {
-      const res = await fetch("http://localhost:5000/api/listings/fetch");
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to fetch listings");
-      return data;
-    },
-  });
-
-  const blogCount = blogs?.data?.length || 0;
-  const listingCount = listings?.data?.length || 0;
+  const [blogs, setBlogs] = useState([]);
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const blogCount = blogs.length || 0;
+  const listingCount = listings.length || 0;
   const [status] = useState("active");
 
   // Blog management states
   const [delId, setDelId] = useState("");
   const [delOpen, setDelOpen] = useState(false);
-  
+
   // Listing management states
   const [listingDelId, setListingDelId] = useState("");
   const [listingDelOpen, setListingDelOpen] = useState(false);
-  
+
   // Coming soon modal state
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
 
-  // Blog delete mutation
-  const { mutate: deleteBlog, isPending: isDeleteBlogPending } = useMutation({
-    mutationFn: async (id: string) => {
-      const res = await fetch(`http://localhost:5000/api/blogs/delete/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+  // Fetch blogs
+  const fetchBlogs = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/blogs");
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to delete blog");
-      return data;
-    },
-    onSuccess: () => {
-      toast.success("Blog deleted successfully");
-      setDelId("");
-      refetchBlogs();
-      setDelOpen(false);
-    },  
-    onError: (error) => {
-      toast.error((error as Error).message || String(error));
-    },
-  });
+      setBlogs(data.data || []);
+    } catch (error) {
+      console.error("Error fetching blogs:", error);
+      toast.error("Failed to load blogs");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Listing delete mutation
-  const { mutate: deleteListing, isPending: isDeleteListingPending } = useMutation({
-    mutationFn: async (id: string) => {
-      const res = await fetch(`http://localhost:5000/api/listings/delete/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+  // Fetch listings
+  const fetchListings = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/listings");
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to delete listing");
-      return data;
-    },
-    onSuccess: () => {
-      toast.success("Listing deleted successfully");
-      setListingDelId("");
-      refetchListings();
-      setListingDelOpen(false);
-    },  
-    onError: (error) => {
-      toast.error((error as Error).message || String(error));
-    },
-  });
+      setListings(data.data || []);
+    } catch (error) {
+      console.error("Error fetching listings:", error);
+      toast.error("Failed to load listings");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBlogs();
+    fetchListings();
+  }, []);
+
+  // Delete blog
+  const handleDeleteBlog = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this blog post?")) return;
+
+    try {
+      setDeleteLoading(true);
+      const res = await fetch(`/api/blogs/${id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        toast.success("Blog deleted successfully");
+        // Re-fetch blogs to update the list
+        fetchBlogs();
+      } else {
+        throw new Error("Failed to delete blog");
+      }
+    } catch (error) {
+      console.error("Error deleting blog:", error);
+      toast.error("Failed to delete blog");
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  // Delete listing
+  const handleDeleteListing = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this listing?")) return;
+
+    try {
+      setDeleteLoading(true);
+      const res = await fetch(`/api/listings/${id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        toast.success("Listing deleted successfully");
+        // Re-fetch listings to update the list
+        fetchListings();
+      } else {
+        throw new Error("Failed to delete listing");
+      }
+    } catch (error) {
+      console.error("Error deleting listing:", error);
+      toast.error("Failed to delete listing");
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   // Handle blog delete
   const handleBlogDelete = async () => {
@@ -100,8 +118,8 @@ const AdminPage = () => {
       toast.error("Please enter a blog ID to delete.");
       return;
     }
-    deleteBlog(delId);
-  }
+    handleDeleteBlog(delId);
+  };
 
   // Handle listing delete
   const handleListingDelete = async () => {
@@ -109,8 +127,8 @@ const AdminPage = () => {
       toast.error("Please enter a listing ID to delete.");
       return;
     }
-    deleteListing(listingDelId);
-  }
+    handleDeleteListing(listingDelId);
+  };
 
   // Handle coming soon notification
   const handleComingSoon = () => {
@@ -287,7 +305,7 @@ const AdminPage = () => {
             </div>
           </div>
         </div>
-      
+
         {/* Blog Delete Modal */}
         <Modal
           open={delOpen}
@@ -322,16 +340,16 @@ const AdminPage = () => {
               </div>
             </div>
             <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
                 onClick={handleBlogDelete}
-                disabled={isDeleteBlogPending}
+                disabled={deleteLoading}
               >
-                {isDeleteBlogPending ? "Deleting..." : "Delete"}
+                {deleteLoading ? "Deleting..." : "Delete"}
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                 onClick={() => setDelOpen(false)}
               >
@@ -340,7 +358,7 @@ const AdminPage = () => {
             </div>
           </div>
         </Modal>
-      
+
         {/* Listing Delete Modal */}
         <Modal
           open={listingDelOpen}
@@ -375,16 +393,16 @@ const AdminPage = () => {
               </div>
             </div>
             <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
                 onClick={handleListingDelete}
-                disabled={isDeleteListingPending}
+                disabled={deleteLoading}
               >
-                {isDeleteListingPending ? "Deleting..." : "Delete"}
+                {deleteLoading ? "Deleting..." : "Delete"}
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                 onClick={() => setListingDelOpen(false)}
               >
@@ -393,7 +411,7 @@ const AdminPage = () => {
             </div>
           </div>
         </Modal>
-        
+
         {/* Coming Soon Modal */}
         <Modal
           open={comingSoonOpen}
@@ -421,8 +439,8 @@ const AdminPage = () => {
               </div>
             </div>
             <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
                 onClick={() => setComingSoonOpen(false)}
               >
@@ -433,7 +451,7 @@ const AdminPage = () => {
         </Modal>
       </Sidebar>
     </>
-  )
-}
+  );
+};
 
-export default AdminPage
+export default AdminPage;

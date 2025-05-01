@@ -67,8 +67,7 @@ export default function ContactTutorModal({ isOpen, onClose, tutor }: ContactTut
     setIsSubmitting(true);
     
     try {
-      // Send the email via API
-      const response = await fetch("http://localhost:5000/api/tutors/contact", {
+      const response = await fetch("/api/tutors/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -79,7 +78,7 @@ export default function ContactTutorModal({ isOpen, onClose, tutor }: ContactTut
           studentName: name,
           studentEmail: email,
           message,
-          subjects: tutor.subjects
+          subjects: tutor.subjects,
         }),
       });
       

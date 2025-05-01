@@ -31,10 +31,11 @@ const ListingEditor = () => {
     }
   }, [editId]);
 
+  // Function to fetch listing data when editing an existing listing
   const fetchListingData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/listings/fetch/${editId}`);
+      const response = await fetch(`/api/listings/${editId}`);
       const data = await response.json();
       
       if (response.ok) {
@@ -69,8 +70,8 @@ const ListingEditor = () => {
     }
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     
     if (!title || !description || !price || !category || !condition || !contact) {
       toast.error("Please fill in all fields");
@@ -82,6 +83,7 @@ const ListingEditor = () => {
       return;
     }
 
+    // Create form data for submission
     const formData = new FormData();
     formData.append('title', title);
     formData.append('description', description);
@@ -97,16 +99,16 @@ const ListingEditor = () => {
       formData.append('imageUrl', imagePreview);
     }
 
+    // Determine API endpoint (create or update)
+    const apiEndpoint = editId 
+        ? `/api/listings/${editId}`
+        : '/api/listings';
+    
     try {
       setLoading(true);
-      let url = isEditMode 
-        ? `http://localhost:5000/api/listings/update/${editId}`
-        : 'http://localhost:5000/api/listings/create';
       
-      let method = isEditMode ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method: method,
+      const response = await fetch(apiEndpoint, {
+        method: editId ? 'PATCH' : 'POST',
         body: formData,
       });
 
