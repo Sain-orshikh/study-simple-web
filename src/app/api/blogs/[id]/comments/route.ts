@@ -1,22 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Blog from '@/models/blog';
-import { use } from 'react';
+import { useId } from 'react';
 
 type Props = {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }
 
 // Route for handling comments on a specific blog
 export async function GET(
   request: NextRequest, 
-  {params}: {params: Promise<{ id: string }>}
+  { params }: { params: { id: string } }
 ) {
   try {
     await connectDB();
     
-    const { id } = use(params);
-    const blog = await Blog.findById(id);
+    const blogId = params.id;
+    const blog = await Blog.findById(blogId);
     
     if (!blog) {
       return NextResponse.json(
@@ -43,12 +43,12 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  props: Props
+  { params }: { params: { id: string } }
 ) {
   try {
     await connectDB();
     
-    const { id } = use(props.params);
+    const blogId = params.id;
     const { content, author } = await request.json();
     
     if (!content) {
@@ -61,7 +61,7 @@ export async function POST(
       );
     }
     
-    const blog = await Blog.findById(id);
+    const blog = await Blog.findById(blogId);
     if (!blog) {
       return NextResponse.json(
         { error: "Blog not found" },
