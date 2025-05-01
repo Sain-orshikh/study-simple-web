@@ -79,7 +79,7 @@ export async function POST(
     return NextResponse.json(
       {
         success: true,
-        comment: blog.comments[blog.comments.length - 1],w
+        comment: blog.comments[blog.comments.length - 1],
         message: "Comment added successfully"
       },
       { status: 201 }
