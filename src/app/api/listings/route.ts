@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
     
     // Build query
-    const query: any = {};
+    const query: Record<string, unknown> = {};
     if (category) query.category = category;
     if (status) query.status = status;
     

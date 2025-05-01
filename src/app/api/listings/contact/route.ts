@@ -6,8 +6,6 @@ export async function POST(request: NextRequest) {
     // Add detailed logging for debugging
     console.log("Received contact request");
     
-    // Clone the request to read it multiple times
-    const clonedRequest = request.clone();
     const data = await request.json();
     
     // Log the exact request data for debugging

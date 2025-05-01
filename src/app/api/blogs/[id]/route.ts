@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import { v2 as cloudinary } from 'cloudinary';
+import { Readable } from 'stream';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -99,7 +100,7 @@ export async function PATCH(
     const imageUrl = formData.get('imageUrl') as string;
     
     // Prepare update object with only provided fields
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (title) updateData.title = title;
     if (content) updateData.content = content;
     if (category) updateData.category = category;
@@ -121,7 +122,6 @@ export async function PATCH(
         );
         
         // Create a readable stream from buffer and pipe to uploadStream
-        const Readable = require('stream').Readable;
         const readableStream = new Readable();
         readableStream.push(buffer);
         readableStream.push(null);

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import { v2 as cloudinary } from 'cloudinary';
+import { Readable } from 'stream';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -91,7 +92,7 @@ export async function PATCH(
       );
     }
     
-    let updateData: any = {};
+    let updateData: Record<string, unknown> = {};
     
     // Check content-type and parse accordingly
     const contentType = request.headers.get('content-type') || '';
@@ -145,7 +146,6 @@ export async function PATCH(
             );
             
             // Create a readable stream from buffer and pipe to uploadStream
-            const Readable = require('stream').Readable;
             const readableStream = new Readable();
             readableStream.push(buffer);
             readableStream.push(null);

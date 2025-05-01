@@ -1,11 +1,9 @@
-import Image from "next/image"
 import Sidebar from "@/components/sidebar/sidebar"
 import { Card } from "@/components/ui/card"
 import { 
   ConstructionIcon, 
   InfoIcon, 
-  AlertCircleIcon,
-  HomeIcon 
+  AlertCircleIcon
 } from "lucide-react"
 import Link from "next/link"
 

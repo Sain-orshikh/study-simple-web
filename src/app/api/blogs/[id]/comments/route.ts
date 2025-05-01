@@ -68,7 +68,7 @@ export async function POST(
     blog.comments.push({
       content,
       author: author || "Anonymous"
-    } as any);
+    });
     
     await blog.save();
     
