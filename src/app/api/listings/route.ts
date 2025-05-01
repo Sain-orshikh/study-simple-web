@@ -9,10 +9,19 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// Configure route segment options
+export const dynamic = 'force-dynamic'; // Default to dynamic for POST
+export const revalidate = 60; // Revalidate cache every 60 seconds for GET
+
 // Import Listing model
 import Listing from '@/models/listing';
 
 export async function GET(request: NextRequest) {
+  // Handle keep-warm requests if implemented
+  if (request.nextUrl.searchParams.has('keepWarm')) {
+    return NextResponse.json({ status: 'warm' }, { status: 200 });
+  }
+
   try {
     await connectDB();
     
@@ -20,15 +29,33 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
     const status = searchParams.get('status');
+    const search = searchParams.get('search');
     
     // Build query
     const query: any = {};
     if (category) query.category = category;
     if (status) query.status = status;
     
+    // Add search functionality if present
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
     const listings = await Listing.find(query).sort({ createdAt: -1 });
     
-    return NextResponse.json({ data: listings }, { status: 200 });
+    // Add cache headers for better performance
+    return NextResponse.json(
+      { data: listings },
+      { 
+        status: 200,
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=600'
+        }
+      }
+    );
   } catch (error) {
     console.error("Error fetching listings:", error);
     return NextResponse.json(
@@ -119,7 +146,12 @@ export async function POST(request: NextRequest) {
     await newListing.save();
     
     return NextResponse.json(
-      { success: true, data: newListing },
+      { 
+        success: true, 
+        data: newListing, 
+        listingId: newListing._id, 
+        message: "Your listing was created successfully. Please save this ID to make changes in the future."
+      },
       { status: 201 }
     );
   } catch (error) {

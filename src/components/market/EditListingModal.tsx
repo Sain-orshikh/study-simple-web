@@ -168,10 +168,16 @@ export function EditListingModal({
         setEditTabValue(1);
         toast.success("Listing found! You can now edit it.");
       } else {
-        toast.error("Listing not found. Please check the ID and try again.");
+        toast.error(`Listing with ID ${listingId} not found. Please check the ID and try again.`);
       }
     } catch (error) {
-      toast.error("Error fetching listing. Please try again.");
+      console.error("Error in handleFetchListing:", error);
+      // Display a more specific error message if available
+      if (error instanceof Error) {
+        toast.error(`Failed to fetch listing: ${error.message}`);
+      } else {
+        toast.error("Error fetching listing. Please try again.");
+      }
     } finally {
       setFetchingListing(false);
     }

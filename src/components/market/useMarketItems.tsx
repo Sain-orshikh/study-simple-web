@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { MarketItem } from "./ItemCard"
 import toast from "react-hot-toast"
 
@@ -33,15 +33,32 @@ export function useMarketItems(options: FetchMarketItemsOptions = {}) {
   const [isLoading, setLoading] = useState(false);
   const [isError, setError] = useState<string | null>(null);
 
-  const fetchItems = async (category?: string) => {
+  // Add useEffect to fetch items when the component mounts or when search parameters change
+  useEffect(() => {
+    fetchItems();
+  }, [category, search]);
+
+  const fetchItems = async () => {
     setLoading(true);
     try {
-        let url = "/api/listings"
-        if (category) {
-            url += `?category=${category}`;
+        // Build query URL with all applicable parameters
+        const params = new URLSearchParams();
+        if (category && category !== "All") {
+            params.append('category', category);
+        }
+        if (search) {
+            params.append('search', search);
         }
         
-        const response = await fetch(url);
+        const queryString = params.toString();
+        const url = `/api/listings${queryString ? `?${queryString}` : ''}`;
+        
+        // Use cache-aware fetch with proper caching control
+        const response = await fetch(url, {
+            // This enables utilizing the cache headers we set on the server
+            next: { revalidate: 60 }
+        });
+        
         if (!response.ok) {
             throw new Error('Failed to fetch listings');
         }
@@ -60,16 +77,36 @@ export function useMarketItems(options: FetchMarketItemsOptions = {}) {
 
   const fetchItemById = async (id: string) => {
     try {
-      const response = await fetch(`/api/listings/${id}`)
-      if (!response.ok) {
-        throw new Error('Failed to fetch item details');
+      const response = await fetch(`/api/listings/${id}`);
+      
+      // Handle 404 specifically with a more user-friendly message
+      if (response.status === 404) {
+        console.log(`Listing with ID ${id} not found`);
+        return null; // Return null for "not found" to allow proper handling
       }
-      const item = await response.json();
-      return item;
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch item details: ${response.status} ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      // Return null if the data is empty or doesn't contain expected fields
+      if (!data || !Object.keys(data).length) {
+        console.log('Empty response when fetching listing');
+        return null;
+      }
+      
+      // Normalize the data structure by ensuring both id and _id are available
+      // This prevents issues with different components expecting different ID field names
+      if (data && data._id) {
+        data.id = data._id;
+      }
+      
+      return data;
     } catch (error) {
       console.error('Error fetching item details:', error);
-      toast.error('Failed to load item details');
-      throw error;
+      throw error; // Let the calling component handle the toast display
     }
   };
 
@@ -86,6 +123,17 @@ export function useMarketItems(options: FetchMarketItemsOptions = {}) {
 
         const data = await response.json();
         fetchItems(); // Refresh the listings
+        
+        // Set the created listing ID and show the alert
+        // Check for listingId in multiple possible locations
+        const listingId = data.listingId || (data.data && data.data._id) || null;
+        
+        if (listingId) {
+            setCreatedListingId(listingId);
+            setShowListingIdAlert(true);
+            toast.success('Listing created successfully');
+        }
+        
         return data;
     } catch (error) {
         console.error('Error creating listing:', error);
@@ -94,23 +142,35 @@ export function useMarketItems(options: FetchMarketItemsOptions = {}) {
     }
   };
 
-  const updateListing = async (listingId: string, formData: FormData) => {
+  const updateListing = async ({ listingId, formData }: { listingId: string, formData: FormData }) => {
     try {
+        // Create a debug object to help diagnose form data issues
+        const debugFormData: Record<string, any> = {};
+        formData.forEach((value, key) => {
+            debugFormData[key] = value instanceof File ? `File: ${value.name}` : value;
+        });
+        console.log("Updating listing with data:", debugFormData);
+
         const response = await fetch(`/api/listings/${listingId}`, {
             method: "PATCH",
+            // Do NOT set Content-Type header manually when sending FormData
+            // The browser will automatically set it with the correct boundary
             body: formData,
         });
 
         if (!response.ok) {
-            throw new Error('Failed to update listing');
+            const errorText = await response.text();
+            console.error("Server error response:", errorText);
+            throw new Error(`Failed to update listing: ${response.status} ${response.statusText}`);
         }
 
         const data = await response.json();
         fetchItems(); // Refresh the listings
+        toast.success('Listing updated successfully');
         return data;
     } catch (error) {
         console.error('Error updating listing:', error);
-        toast.error('Failed to update listing');
+        toast.error(`Failed to update listing: ${error.message}`);
         throw error;
     }
   };
@@ -141,7 +201,7 @@ export function useMarketItems(options: FetchMarketItemsOptions = {}) {
 
   const contactSeller = async (contactData: ContactSellerData) => {
     try {
-        const response = await fetch("/api/tutors/contact", {
+        const response = await fetch("/api/listings/contact", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

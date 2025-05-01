@@ -22,12 +22,14 @@ export const sendEmail = async (options: {
     logEmailConfig();
     
     console.log('Attempting to send email via Resend...');
+    
+    // Use direct Resend send without React Email render
     const { data, error } = await resend.emails.send({
       from: process.env.EMAIL_FROM || 'no-reply@studysimple.com',
       to: options.to,
       subject: options.subject,
-      text: options.text,
-      html: options.html,
+      text: options.text || '',
+      html: options.html || '',
     });
     
     if (error) {

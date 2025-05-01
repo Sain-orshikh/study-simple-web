@@ -33,8 +33,25 @@ export function ContactSellerModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!name) {
+      toast.error('Please enter your name');
+      return;
+    }
+
+    if (!email) {
+      toast.error('Please enter your email address');
+      return;
+    }
+    
     if (!message) {
       toast.error('Please enter a message');
+      return;
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error('Please enter a valid email address');
       return;
     }
     
@@ -47,23 +64,28 @@ export function ContactSellerModal({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          listingId: item._id,
-          name,
-          email,
+          // Format data correctly for the API
+          itemName: item.name,
+          buyerEmail: email,
+          buyerName: name,
+          sellerEmail: item.email,
           message,
+          // Include both ID formats for robustness
+          listingId: item._id || item.id
         }),
       });
       
       if (!response.ok) {
-        throw new Error('Failed to send message');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to send message');
       }
       
-      setMessage('');
+      resetForm();
       toast.success('Message sent to seller successfully!');
       onClose();
     } catch (error) {
       console.error('Error sending message:', error);
-      toast.error('Failed to send message');
+      toast.error(error instanceof Error ? error.message : 'Failed to send message');
     } finally {
       setIsSubmitting(false);
     }

@@ -145,7 +145,7 @@ const Editor = () => {
     content: "<p></p>",
   });
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<File | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('Others');
@@ -159,8 +159,8 @@ const Editor = () => {
     setCategory(e.target.value);
   };
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0]; // Get the first file from the input
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]; // Get the first file from the input
     if (file) {
       setImage(file); // Store the file in the state
       const reader = new FileReader();
@@ -183,6 +183,7 @@ const Editor = () => {
       return;
     }
 
+    // Create FormData for file upload
     const formData = new FormData();
     formData.append('image', image); // Append the file to FormData
     formData.append('title', title); // Append the title
@@ -190,19 +191,10 @@ const Editor = () => {
     formData.append('category', category); // Append the category
 
     try {
-      setLoading(true);
+      // Use FormData for uploading files
       const response = await fetch('/api/blogs', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title,
-          content: editorContent,
-          image: imageUrl,
-          author,
-          category
-        }),
+        body: formData, // Send the FormData directly
       });
 
       const data = await response.json();
@@ -265,10 +257,10 @@ const Editor = () => {
   return (
     <div className="border py-4 w-full">
       <Toaster/>
-      <div className="w-[80%] mx-auto my-2 font-bold text-2xl text-start">
+      <div className="w-[80%] mx-auto mb-2 font-bold text-2xl text-start">
         Content
       </div>
-      <div className={`fixed top-0 ml-auto mt-14 border-t border-b border-r z-10 mb-2 flex items-center justify-evenly w-[100%] bg-gray-100 py-1 px-2`}>
+      <div className={`sticky top-0 border-t border-b border-r z-10 mb-2 flex items-center justify-evenly w-[100%] bg-gray-100 py-1 px-2`}>
         <select
           onChange={(e) => {
             const level = parseInt(e.target.value);
@@ -351,15 +343,15 @@ const Editor = () => {
               <HexColorPicker color={highlightColor} onChange={setHighlightColor} />
             </div>
           )}
-      </div>
-      <button
-        onClick={() => editor.chain().focus().unsetHighlight().run()}
-        disabled={!editor.isActive('highlight')}
-        className=""
-      >
-        <TbBallpenOff fontSize={20}/>
-      </button>
-      <label className="cursor-pointer">
+        </div>
+        <button
+          onClick={() => editor.chain().focus().unsetHighlight().run()}
+          disabled={!editor.isActive('highlight')}
+          className=""
+        >
+          <TbBallpenOff fontSize={20}/>
+        </button>
+        <label className="cursor-pointer">
           <MdOutlineImage fontSize={20}/>
           <input type="file" accept="image/*" onChange={addImage} className="hidden" />
         </label>
@@ -394,8 +386,15 @@ const Editor = () => {
           <AiOutlineOrderedList fontSize={20}/>
         </button>
       </div>
-      <div className="w-[80%] mx-auto border focus-within:border-none">
-        <EditorContent editor={editor} />
+      <div className="w-[80%] mx-auto border border-gray-300 rounded-md min-h-[300px] mb-6 relative">
+        <div className="p-4 min-h-[300px] cursor-text" onClick={() => editor.chain().focus().run()}>
+          <EditorContent editor={editor} />
+        </div>
+        {editor && !editor.isFocused && (
+          <div className="absolute inset-0 flex items-center justify-center text-gray-400 pointer-events-none">
+            
+          </div>
+        )}
       </div>
       <div className="w-[80%] mx-auto mt-3 font-bold text-2xl text-start">
         Title
@@ -434,7 +433,7 @@ const Editor = () => {
           className="hidden"
         />
         <img
-          src={imagePreview || Upload.src} // Use the uploaded image preview or fallback to the default image
+          src={(typeof imagePreview === 'string' ? imagePreview : Upload.src)}
           alt="Preview"
           className="w-[8rem] h-[8rem]" // Ensure the image covers the container
         />

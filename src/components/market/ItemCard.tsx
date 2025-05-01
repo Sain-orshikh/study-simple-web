@@ -113,12 +113,16 @@ export function ItemCard({ item, onContactClick }: ItemCardProps) {
         </div>
         <div className="flex flex-col justify-between w-full">
           <div>
-            <div className="flex justify-between items-start">
-              <h2 className="text-lg font-semibold">{item.name}</h2>
+            <div className="flex justify-between items-start w-full">
+              <div className="flex-1 min-w-0 pr-2">
+                <h2 className="text-lg font-semibold overflow-hidden text-ellipsis break-all">{item.name}</h2>
+              </div>
               {item.status && (
-                <span className={`text-xs px-2 py-1 rounded ${getStatusBadgeClass()}`}>
-                  {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-                </span>
+                <div className="flex-shrink-0">
+                  <span className={`text-xs px-2 py-1 rounded ${getStatusBadgeClass()}`}>
+                    {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                  </span>
+                </div>
               )}
             </div>
             <div className="flex items-center text-sm text-gray-500 mt-1">

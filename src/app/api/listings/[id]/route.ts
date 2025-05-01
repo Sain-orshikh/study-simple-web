@@ -14,12 +14,12 @@ import Listing from '@/models/listing';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectDB();
     
-    const listingId = params.id;
+    const listingId = context.params.id;
     const listing = await Listing.findById(listingId);
     
     if (!listing) {
@@ -41,12 +41,12 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectDB();
     
-    const listingId = params.id;
+    const listingId = context.params.id;
     const listing = await Listing.findById(listingId);
     
     if (!listing) {
@@ -73,12 +73,15 @@ export async function DELETE(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectDB();
     
+    // Use await on params for Next.js App Router compatibility
+    const params = context.params;
     const listingId = params.id;
+    
     const listing = await Listing.findById(listingId);
     
     if (!listing) {
@@ -88,67 +91,102 @@ export async function PATCH(
       );
     }
     
-    const formData = await request.formData();
+    let updateData: any = {};
     
-    // Extract update data from form
-    const name = formData.get('name') as string;
-    const description = formData.get('description') as string;
-    const category = formData.get('category') as string;
-    const price = formData.get('price') ? Number(formData.get('price')) : undefined;
-    const hidePrice = formData.get('hidePrice') !== null ? formData.get('hidePrice') === 'true' : undefined;
-    const condition = formData.get('condition') as string;
-    const email = formData.get('email') as string;
-    const phoneNumber = formData.get('phoneNumber') as string;
-    const seller = formData.get('seller') as string;
-    const facebookUsername = formData.get('facebookUsername') as string;
-    const status = formData.get('status') as string;
-    const imageFile = formData.get('image') as File;
-    const imageUrl = formData.get('imageUrl') as string;
+    // Check content-type and parse accordingly
+    const contentType = request.headers.get('content-type') || '';
     
-    // Prepare update object with only provided fields
-    const updateData: any = {};
-    if (name) updateData.name = name;
-    if (description) updateData.description = description;
-    if (category) updateData.category = category;
-    if (price !== undefined) updateData.price = price;
-    if (hidePrice !== undefined) updateData.hidePrice = hidePrice;
-    if (condition) updateData.condition = condition;
-    if (email) updateData.email = email;
-    if (phoneNumber) updateData.phoneNumber = phoneNumber;
-    if (seller) updateData.seller = seller;
-    if (facebookUsername) updateData.facebookUsername = facebookUsername;
-    if (status) updateData.status = status;
-    
-    // Handle image update if provided
-    if (imageFile) {
-      const bytes = await imageFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      
-      // Upload to Cloudinary
-      const uploadResult = await new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          { folder: "listing-images" },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        );
+    if (contentType.includes('multipart/form-data')) {
+      // Handle FormData
+      try {
+        const formData = await request.formData();
         
-        // Create a readable stream from buffer and pipe to uploadStream
-        const Readable = require('stream').Readable;
-        const readableStream = new Readable();
-        readableStream.push(buffer);
-        readableStream.push(null);
-        readableStream.pipe(uploadStream);
-      });
-      
-      updateData.image = uploadResult.secure_url;
-    } else if (imageUrl) {
-      // Upload URL to Cloudinary
-      const uploadedImage = await cloudinary.uploader.upload(imageUrl, {
-        folder: "listing-images",
-      });
-      updateData.image = uploadedImage.secure_url;
+        // Extract update data from form
+        const name = formData.get('name') as string;
+        const description = formData.get('description') as string;
+        const category = formData.get('category') as string;
+        const price = formData.get('price') ? Number(formData.get('price')) : undefined;
+        const hidePrice = formData.get('hidePrice') !== null ? formData.get('hidePrice') === 'true' : undefined;
+        const condition = formData.get('condition') as string;
+        const email = formData.get('email') as string;
+        const phoneNumber = formData.get('phoneNumber') as string;
+        const seller = formData.get('seller') as string;
+        const facebookUsername = formData.get('facebookUsername') as string;
+        const status = formData.get('status') as string;
+        const imageFile = formData.get('image') as File;
+        const imageUrl = formData.get('imageUrl') as string;
+        
+        // Prepare update object with only provided fields
+        if (name) updateData.name = name;
+        if (description) updateData.description = description;
+        if (category) updateData.category = category;
+        if (price !== undefined) updateData.price = price;
+        if (hidePrice !== undefined) updateData.hidePrice = hidePrice;
+        if (condition) updateData.condition = condition;
+        if (email) updateData.email = email;
+        if (phoneNumber) updateData.phoneNumber = phoneNumber;
+        if (seller) updateData.seller = seller;
+        if (facebookUsername) updateData.facebookUsername = facebookUsername;
+        if (status) updateData.status = status;
+        
+        // Handle image update if provided
+        if (imageFile) {
+          const bytes = await imageFile.arrayBuffer();
+          const buffer = Buffer.from(bytes);
+          
+          // Upload to Cloudinary
+          const uploadResult = await new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+              { folder: "listing-images" },
+              (error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+              }
+            );
+            
+            // Create a readable stream from buffer and pipe to uploadStream
+            const Readable = require('stream').Readable;
+            const readableStream = new Readable();
+            readableStream.push(buffer);
+            readableStream.push(null);
+            readableStream.pipe(uploadStream);
+          });
+          
+          updateData.image = uploadResult.secure_url;
+        } else if (imageUrl) {
+          // Upload URL to Cloudinary
+          const uploadedImage = await cloudinary.uploader.upload(imageUrl, {
+            folder: "listing-images",
+          });
+          updateData.image = uploadedImage.secure_url;
+        }
+      } catch (formError) {
+        console.error("Error parsing form data:", formError);
+        throw new Error("Failed to parse form data");
+      }
+    } else if (contentType.includes('application/json')) {
+      // Handle JSON data
+      try {
+        const jsonData = await request.json();
+        updateData = { ...jsonData };
+        
+        // Handle image URL if provided
+        if (updateData.imageUrl) {
+          const uploadedImage = await cloudinary.uploader.upload(updateData.imageUrl, {
+            folder: "listing-images",
+          });
+          updateData.image = uploadedImage.secure_url;
+          delete updateData.imageUrl;
+        }
+      } catch (jsonError) {
+        console.error("Error parsing JSON data:", jsonError);
+        throw new Error("Failed to parse JSON data");
+      }
+    } else {
+      return NextResponse.json(
+        { success: false, error: "Unsupported content type" },
+        { status: 415 }
+      );
     }
     
     // Update the listing
@@ -169,7 +207,7 @@ export async function PATCH(
   } catch (error) {
     console.error("Error updating listing:", error);
     return NextResponse.json(
-      { success: false, error: "Server error" },
+      { success: false, error: "Server error", message: error.message },
       { status: 500 }
     );
   }

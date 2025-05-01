@@ -78,6 +78,13 @@ const listingSchema = new Schema({
   },
 }, { timestamps: true });
 
+// Add indexes to improve query performance
+// These indexes will speed up the frequently used filters and searches
+listingSchema.index({ category: 1 }); // Index for category filtering
+listingSchema.index({ status: 1 }); // Index for status filtering
+listingSchema.index({ createdAt: -1 }); // Index for sorting by latest
+listingSchema.index({ name: 'text', description: 'text' }); // Text index for search functionality
+
 // Create and export the model
 // Check if the model exists before creating a new one to prevent overwriting in development
 const Listing: Model<IListing> =
