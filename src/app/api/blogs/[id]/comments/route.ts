@@ -5,12 +5,12 @@ import Blog from '@/models/blog';
 // Route for handling comments on a specific blog
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectDB();
     
-    const blogId = params.id;
+    const blogId = context.params.id;
     const blog = await Blog.findById(blogId);
     
     if (!blog) {
@@ -38,12 +38,12 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectDB();
     
-    const blogId = params.id;
+    const blogId = context.params.id;
     const { content, author } = await request.json();
     
     if (!content) {
