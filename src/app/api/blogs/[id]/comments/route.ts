@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts-expect-error - Next.js type error for route handler parameter structure
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Blog from '@/models/blog';
@@ -9,7 +9,7 @@ type Props = {
 }
 
 // Route for handling comments on a specific blog
-// @ts-ignore - Ignoring Next.js type errors for route handlers
+// @ts-expect-error - Next.js type error for route handler parameter structure
 export async function GET(
   request: NextRequest, 
   { params }: { params: { id: string } }
@@ -43,7 +43,7 @@ export async function GET(
   }
 }
 
-// @ts-ignore - Ignoring Next.js type errors for route handlers
+// @ts-expect-error - Next.js type error for route handler parameter structure
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
