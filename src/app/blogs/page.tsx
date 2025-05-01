@@ -2,10 +2,9 @@
 
 import Sidebar from "@/components/sidebar/sidebar"
 import { useQuery } from '@tanstack/react-query';
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import BlogCard from "@/components/ui/BlogCard"
 import { FaPenClip } from "react-icons/fa6";
-import { AnimatedBackground } from "@/components/ui/animatedbg";
 import { SearchIcon, NewspaperIcon, TrendingUpIcon, FolderIcon, FilterIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 

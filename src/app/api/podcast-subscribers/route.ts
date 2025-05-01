@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import PodcastSubscriber from '@/models/podcast-subscriber';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     await connectDB();
     

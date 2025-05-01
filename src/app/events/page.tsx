@@ -6,7 +6,7 @@ import Image from "next/image"
 import Sidebar from "@/components/sidebar/sidebar"
 import { Card } from "@/components/ui/card"
 import { 
-  Calendar, Clock, Users, MapPin, ArrowRight, Search, 
+  Calendar, Clock, MapPin, ArrowRight, Search, 
   GraduationCap, Sparkles, PartyPopper, Music, BookOpen,
   Trophy, School, Award, HeartHandshake, Rocket
 } from "lucide-react"

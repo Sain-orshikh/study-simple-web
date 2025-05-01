@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import { v2 as cloudinary } from 'cloudinary';
+import { Readable } from 'stream';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -111,7 +112,6 @@ export async function POST(request: NextRequest) {
         );
         
         // Create a readable stream from buffer and pipe to uploadStream
-        const Readable = require('stream').Readable;
         const readableStream = new Readable();
         readableStream.push(buffer);
         readableStream.push(null);

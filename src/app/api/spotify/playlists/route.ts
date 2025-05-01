@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getPlaylists, formatPlaylistData } from '@/lib/spotify';
 import { PlaylistType } from '@/data/study-tools/playlists';
 
@@ -9,7 +9,7 @@ const PLAYLIST_IDS = [
   '37i9dQZF1DWWEJlAGA9gs0'  // Classical Focus
 ];
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     // Fetch playlists from Spotify API
     const spotifyPlaylists = await getPlaylists(PLAYLIST_IDS);

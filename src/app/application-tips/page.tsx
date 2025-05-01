@@ -2,7 +2,7 @@ import Sidebar from "@/components/sidebar/sidebar"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { GraduationCapIcon, CheckCircleIcon, XCircleIcon, DownloadIcon, GlobeIcon, FileIcon } from "lucide-react"
+import { GraduationCapIcon, CheckCircleIcon, XCircleIcon } from "lucide-react"
 import Link from "next/link"
 import { DownloadableFiles } from "@/components/ui/DownloadableFiles"
 

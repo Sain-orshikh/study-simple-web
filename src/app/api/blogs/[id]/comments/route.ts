@@ -65,17 +65,21 @@ export async function POST(
     }
     
     // Add new comment
-    blog.comments.push({
+    const newComment = {
       content,
-      author: author || "Anonymous"
-    });
+      author: author || "Anonymous",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    blog.comments.push(newComment as any);
     
     await blog.save();
     
     return NextResponse.json(
       {
         success: true,
-        comment: blog.comments[blog.comments.length - 1],
+        comment: blog.comments[blog.comments.length - 1],w
         message: "Comment added successfully"
       },
       { status: 201 }
