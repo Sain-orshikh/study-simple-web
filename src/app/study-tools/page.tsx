@@ -4,7 +4,7 @@ import { StudyPlaylists } from "@/components/study-tools/StudyPlaylists"
 import { ExternalTools } from "@/components/study-tools/ExternalTools"
 import { StudyTechniques } from "@/components/study-tools/StudyTechniques"
 
-// Import data
+
 import { studyPlaylists } from "@/data/study-tools/playlists"
 import { externalTools } from "@/data/study-tools/external-tools"
 import { studyTechniques } from "@/data/study-tools/study-techniques"
