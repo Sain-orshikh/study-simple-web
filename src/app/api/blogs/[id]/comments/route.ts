@@ -7,7 +7,6 @@ export async function GET(request: NextRequest) {
   try {
     await connectDB();
     
-    // Extract ID directly from URL path
     const url = request.url;
     const pathParts = url.split('/');
     const blogId = pathParts[pathParts.indexOf('blogs') + 1];
