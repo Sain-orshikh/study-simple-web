@@ -2,16 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Blog from '@/models/blog';
 
+// Define proper typing for dynamic route parameters
+type Props = {
+  params: { id: string }
+}
+
 // Route for handling comments on a specific blog
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: Props
 ) {
   try {
     await connectDB();
     
-    const { id } = await params;
-    const blog = await Blog.findById(id);
+    const blogId = params.id;
+    const blog = await Blog.findById(blogId);
     
     if (!blog) {
       return NextResponse.json(
@@ -38,12 +43,12 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: Props
 ) {
   try {
     await connectDB();
     
-    const { id } = await params;
+    const blogId = params.id;
     const { content, author } = await request.json();
     
     if (!content) {
@@ -56,7 +61,7 @@ export async function POST(
       );
     }
     
-    const blog = await Blog.findById(id);
+    const blog = await Blog.findById(blogId);
     if (!blog) {
       return NextResponse.json(
         { error: "Blog not found" },

@@ -3,6 +3,11 @@ import connectDB from '@/lib/mongodb';
 import { v2 as cloudinary } from 'cloudinary';
 import { Readable } from 'stream';
 
+// Define proper typing for dynamic route parameters
+type Props = {
+  params: { id: string }
+}
+
 // Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -15,7 +20,7 @@ import Blog from '@/models/blog';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: Props
 ) {
   try {
     await connectDB();
@@ -42,7 +47,7 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: Props
 ) {
   try {
     await connectDB();
@@ -74,7 +79,7 @@ export async function DELETE(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: Props
 ) {
   try {
     await connectDB();
