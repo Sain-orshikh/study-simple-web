@@ -7,10 +7,16 @@ export async function GET(request: NextRequest) {
   try {
     await connectDB();
     
-    // Extract ID directly from URL path
-    const url = request.url;
-    const pathParts = url.split('/');
-    const blogId = pathParts[pathParts.indexOf('blogs') + 1];
+    // Get the blogId from request body or URL
+    const { searchParams } = new URL(request.url);
+    const blogId = searchParams.get('blogId');
+    
+    if (!blogId) {
+      return NextResponse.json(
+        { error: "Blog ID is required" },
+        { status: 400 }
+      );
+    }
     
     const blog = await Blog.findById(blogId);
     
@@ -41,12 +47,14 @@ export async function POST(request: NextRequest) {
   try {
     await connectDB();
     
-    // Extract ID directly from URL path
-    const url = request.url;
-    const pathParts = url.split('/');
-    const blogId = pathParts[pathParts.indexOf('blogs') + 1];
+    const { blogId, content, author } = await request.json();
     
-    const { content, author } = await request.json();
+    if (!blogId) {
+      return NextResponse.json(
+        { error: "Blog ID is required" },
+        { status: 400 }
+      );
+    }
     
     if (!content) {
       return NextResponse.json(
