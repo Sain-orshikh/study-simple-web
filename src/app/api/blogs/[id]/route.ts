@@ -22,7 +22,6 @@ export async function GET(
 ) {
   try {
     // Use type assertion to silence TypeScript errors
-    // @ts-expect-error: Third-party type mismatch
     const { params } = context as RouteContext;
     await connectDB();
     
