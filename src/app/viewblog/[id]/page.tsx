@@ -4,18 +4,14 @@ import React, { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import toast, { Toaster } from 'react-hot-toast';
 import Sidebar from "@/components/sidebar/sidebar"
-import { BiSolidHeartSquare, BiDislike } from "react-icons/bi";
-import { BsShare } from "react-icons/bs";
-import { format, parseISO } from 'date-fns';
+import { BsShare, BsCalendarEvent, BsPersonCircle } from "react-icons/bs";
+import { format } from 'date-fns';
 
 const ViewBlogPage = () => {
   const { id } = useParams(); // Extract the id from the URL
   const [blog, setBlog] = useState(null);
-  const [likesCount, setLikesCount] = useState(0);
-  const [userLikeState, setUserLikeState] = useState<'liked' | 'disliked' | 'none'>('none');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [likeProcessing, setLikeProcessing] = useState(false);
 
   useEffect(() => {
     async function fetchBlog() {
@@ -27,7 +23,6 @@ const ViewBlogPage = () => {
         }
         const blogData = await res.json();
         setBlog(blogData);
-        setLikesCount(blogData.likes || 0);
       } catch (error) {
         console.error('Error fetching blog:', error);
         setError('Failed to load blog');
@@ -40,84 +35,6 @@ const ViewBlogPage = () => {
       fetchBlog();
     }
   }, [id]);
-
-  const handleLike = async () => {
-    try {
-      setLikeProcessing(true);
-      const response = await fetch(`/api/blogs/${id}/like`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to like blog');
-      }
-      
-      const data = await response.json();
-      setLikesCount(data.likes);
-      setUserLikeState('liked');
-      toast.success('Thanks for your like!');
-    } catch (error) {
-      console.error('Error liking blog:', error);
-      toast.error('Failed to update like status');
-    } finally {
-      setLikeProcessing(false);
-    }
-  };
-
-  const handleUnlike = async () => {
-    try {
-      setLikeProcessing(true);
-      const response = await fetch(`/api/blogs/${id}/unlike`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to unlike blog');
-      }
-      
-      const data = await response.json();
-      setLikesCount(data.likes);
-      setUserLikeState('none');
-      toast.success('Removed your like');
-    } catch (error) {
-      console.error('Error unliking blog:', error);
-      toast.error('Failed to update like status');
-    } finally {
-      setLikeProcessing(false);
-    }
-  };
-
-  const handleDislike = async () => {
-    try {
-      setLikeProcessing(true);
-      const response = await fetch(`/api/blogs/${id}/dislike`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to dislike blog');
-      }
-      
-      const data = await response.json();
-      setLikesCount(data.likes);
-      setUserLikeState('disliked');
-      toast.success('Noted your dislike');
-    } catch (error) {
-      console.error('Error disliking blog:', error);
-      toast.error('Failed to update like status');
-    } finally {
-      setLikeProcessing(false);
-    }
-  };
 
   const handleShare = () => {
     // Get current URL
@@ -185,41 +102,14 @@ const ViewBlogPage = () => {
                 {blog?.createdAt && format(new Date(blog.createdAt), 'MMMM d, yyyy')}
               </span>
               
-              <div className="flex space-x-2">
-                <button
-                  onClick={userLikeState === 'liked' ? handleUnlike : handleLike}
-                  className={`flex items-center px-2 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
-                    userLikeState === 'liked' 
-                      ? 'text-red-500 dark:text-red-400' 
-                      : 'text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400'
-                  }`}
-                  disabled={likeProcessing}
-                  aria-label={userLikeState === 'liked' ? "Unlike" : "Like"}
-                >
-                  <BiSolidHeartSquare className={`mr-1 ${likeProcessing ? 'animate-pulse' : ''}`} size={18} />
-                  <span className="text-sm">{likesCount}</span>
-                </button>
-                
-                <button
-                  onClick={handleDislike}
-                  className={`flex items-center px-2 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${
-                    userLikeState === 'disliked' 
-                      ? 'text-blue-500 dark:text-blue-400' 
-                      : 'text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400'
-                  }`}
-                  disabled={likeProcessing}
-                  aria-label={userLikeState === 'disliked' ? "Remove dislike" : "Dislike"}
-                >
-                  <BiDislike className={`${likeProcessing ? 'animate-pulse' : ''}`} size={18} />
-                </button>
-                
-                <button
-                  onClick={handleShare}
-                  className="flex items-center text-gray-600 dark:text-gray-300 hover:text-green-500 dark:hover:text-green-400 px-2 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                  <BsShare size={16} />
-                </button>
-              </div>
+              <button
+                onClick={handleShare}
+                className="flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 px-2 py-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="Share this article"
+              >
+                <BsShare size={16} className="mr-1" />
+                <span className="text-xs">Share</span>
+              </button>
             </div>
             
             <div className="break-words whitespace-normal">
@@ -247,7 +137,7 @@ const ViewBlogPage = () => {
           </div>
 
           {/* Blog Content */}
-          <div className="mt-8 bg">
+          <div className="mt-8">
             <div className='text-black text-lg dark:text-white prose max-w-none dark:prose-invert'>
               <div dangerouslySetInnerHTML={{ __html: blog?.content }} />
             </div>

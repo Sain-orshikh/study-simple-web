@@ -1,12 +1,9 @@
 "use client"
 
-import React, { useState } from 'react'
+import React from 'react'
 import Link from 'next/link';
-import { BiSolidHeartSquare, BiDislike } from "react-icons/bi";
-import { BsShare } from "react-icons/bs";
+import { BsShare, BsCalendarEvent } from "react-icons/bs";
 import { format, parseISO } from 'date-fns';
-import { useAtom } from 'jotai';
-import { blogInteractions, toggleBlogLike, toggleBlogDislike, isBlogLiked, isBlogDisliked } from '@/components/themeatom';
 import toast from 'react-hot-toast';
 
 interface Blog {
@@ -17,98 +14,10 @@ interface Blog {
   category: string;
   author?: string;
   createdAt?: string;
-  likes?: number;
 }
 
 const BlogCard: React.FC<{ blog: Blog, isPreview: boolean }> = ({ blog, isPreview }) => {
-  const [localLikes, setLocalLikes] = useState(blog.likes || 0);
-  const [isProcessing, setIsProcessing] = useState(false);
-  
-  // Get blog interaction state from global state
-  const [interactions] = useAtom(blogInteractions);
-  const [, doToggleLike] = useAtom(toggleBlogLike);
-  const [, doToggleDislike] = useAtom(toggleBlogDislike);
-  const [getLiked] = useAtom(isBlogLiked);
-  const [getDisliked] = useAtom(isBlogDisliked);
-  
-  const isLiked = getLiked(blog._id);
-  const isDisliked = getDisliked(blog._id);
-  
   const fallbackImage = "https://shorturl.at/6w7NB";
-  
-  const handleLike = async () => {
-    if (isProcessing) return;
-    
-    try {
-      setIsProcessing(true);
-      
-      const result = doToggleLike(blog._id);
-      
-      if (result === 'unliked') {
-        const response = await fetch(`/api/blogs/${blog._id}/unlike`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
-        
-        const data = await response.json();
-        if (data.success) {
-          setLocalLikes(data.likes);
-        }
-      } else if (result === 'liked') {
-        if (isDisliked) {
-        }
-        
-        const response = await fetch(`/api/blogs/${blog._id}/like`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
-        
-        const data = await response.json();
-        if (data.success) {
-          setLocalLikes(data.likes);
-        }
-      }
-    } catch (error) {
-      console.error("Error handling like:", error);
-      toast.error("Something went wrong");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-  
-  const handleDislike = async () => {
-    if (isProcessing) return;
-    
-    try {
-      setIsProcessing(true);
-      
-      const result = doToggleDislike(blog._id);
-      
-      if (result === 'disliked' && isLiked) {
-        const response = await fetch(`/api/blogs/${blog._id}/dislike`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
-        
-        const data = await response.json();
-        if (data.success) {
-          setLocalLikes(data.likes);
-        }
-      } else if (result === 'undisliked') {
-      }
-    } catch (error) {
-      console.error("Error handling dislike:", error);
-      toast.error("Something went wrong");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
   
   const handleShare = () => {
     const blogUrl = `${window.location.origin}/viewblog/${blog._id}`;
@@ -190,12 +99,7 @@ const BlogCard: React.FC<{ blog: Blog, isPreview: boolean }> = ({ blog, isPrevie
       </div>
       
       <div className="p-5 flex-grow flex flex-col">
-        <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mb-2">
-          <span>{blog.author || 'Anonymous'}</span>
-          <span>{formattedDate}</span>
-        </div>
-        
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 leading-tight line-clamp-2">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3 leading-tight line-clamp-2">
           {!isPreview ? (
             <Link href={`/viewblog/${blog._id}`} className="hover:text-blue-600 dark:hover:text-blue-400">
               {blog.title}
@@ -205,46 +109,24 @@ const BlogCard: React.FC<{ blog: Blog, isPreview: boolean }> = ({ blog, isPrevie
           )}
         </h3>
         
-        <div className="mt-auto flex items-center pt-3 border-t border-gray-200 dark:border-gray-700">
-          {/* Group for like and dislike buttons */}
-          <div className="flex items-center space-x-3 flex-grow">
-            <button 
-              onClick={handleLike} 
-              className={`flex items-center ${
-                isLiked 
-                  ? 'text-red-500 dark:text-red-400' 
-                  : 'text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-400'
-              } transition-colors`}
-              disabled={isProcessing}
-              aria-label={isLiked ? "Unlike" : "Like"}
-            >
-              <BiSolidHeartSquare className={`mr-1 ${isProcessing ? 'animate-pulse' : ''}`} size={18} />
-              <span className="text-xs">{localLikes}</span>
-            </button>
-            
-            <button 
-              onClick={handleDislike} 
-              className={`flex items-center ${
-                isDisliked 
-                  ? 'text-blue-500 dark:text-blue-400' 
-                  : 'text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400'
-              } transition-colors`}
-              disabled={isProcessing}
-              aria-label={isDisliked ? "Remove dislike" : "Dislike"}
-            >
-              <BiDislike className={`${isProcessing ? 'animate-pulse' : ''}`} size={18} />
-            </button>
+        {/* Date and share button in same row - removed author section */}
+        <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mb-4">
+          <div className="flex items-center">
+            <BsCalendarEvent className="mr-1" size={14} />
+            <span>{formattedDate}</span>
           </div>
           
-          {/* Share button pushed to the right */}
           <button 
             onClick={handleShare} 
-            className="text-gray-600 dark:text-gray-300 hover:text-green-500 dark:hover:text-green-400 transition-colors"
+            className="flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
             aria-label="Share blog"
           >
-            <BsShare size={16} />
+            <BsShare size={16} className="mr-1" />
+            <span className="text-xs">Share</span>
           </button>
         </div>
+        
+        {/* Removed the separate div with border-t for the share button */}
       </div>
     </div>
   )

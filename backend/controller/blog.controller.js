@@ -104,8 +104,8 @@ export const deleteBlog = async (req, res) => {
 	}
 };
 
-// New controller methods for likes and comments
-
+// Like/Dislike controller methods commented out
+/*
 export const likeBlog = async (req, res) => {
     try {
         const blogId = req.params.id;
@@ -128,7 +128,6 @@ export const likeBlog = async (req, res) => {
     }
 };
 
-// New controller method for unliking a blog
 export const unlikeBlog = async (req, res) => {
     try {
         const blogId = req.params.id;
@@ -151,7 +150,6 @@ export const unlikeBlog = async (req, res) => {
     }
 };
 
-// New controller method for disliking a blog (which also removes a like if it exists)
 export const dislikeBlog = async (req, res) => {
     try {
         const blogId = req.params.id;
@@ -176,6 +174,7 @@ export const dislikeBlog = async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error" });
     }
 };
+*/
 
 // Commented out comment-related controller methods
 /*

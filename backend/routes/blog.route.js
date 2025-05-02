@@ -7,9 +7,6 @@ import {
     deleteBlog, 
     fetchBlogs, 
     fetchBlog, 
-    likeBlog,
-    unlikeBlog,
-    dislikeBlog, 
     updateBlog
 } from "../controller/blog.controller.js";
 
@@ -20,10 +17,5 @@ router.get("/fetch", fetchBlogs);
 router.post("/create", upload.single("image"), createBlog);
 router.put("/update/:id", upload.single("image"), updateBlog);
 router.delete("/delete/:id", deleteBlog);
-
-// Routes for likes and dislikes
-router.post("/like/:id", likeBlog);
-router.post("/unlike/:id", unlikeBlog);
-router.post("/dislike/:id", dislikeBlog);
 
 export default router;

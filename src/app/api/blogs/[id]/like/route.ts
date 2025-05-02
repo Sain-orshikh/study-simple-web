@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import Blog from '@/models/blog';
 
+// This like feature has been commented out
 export async function POST(
   request: NextRequest,
   context: { params: { id: string } }
 ) {
+  return NextResponse.json({ 
+    success: false, 
+    message: "Liking feature has been disabled" 
+  }, { status: 404 });
+  
+  /* Original implementation
   try {
     const { params } = context;
     await connectDB();
@@ -37,4 +42,5 @@ export async function POST(
       { status: 500 }
     );
   }
+  */
 }
