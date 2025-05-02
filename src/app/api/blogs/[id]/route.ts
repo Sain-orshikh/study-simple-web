@@ -14,7 +14,6 @@ cloudinary.config({
 import Blog from '@/models/blog';
 
 // Define a type that matches what Next.js expects in production
-// @ts-expect-error: Third-party type mismatch
 type RouteContext = { params: { id: string } };
 
 export async function GET(
@@ -23,6 +22,7 @@ export async function GET(
 ) {
   try {
     // Use type assertion to silence TypeScript errors
+    // @ts-expect-error: Third-party type mismatch
     const { params } = context as RouteContext;
     await connectDB();
     
@@ -52,6 +52,7 @@ export async function DELETE(
 ) {
   try {
     // Use type assertion to silence TypeScript errors
+    // @ts-expect-error: Third-party type mismatch
     const { params } = context as RouteContext;
     await connectDB();
     
@@ -86,6 +87,7 @@ export async function PATCH(
 ) {
   try {
     // Use type assertion to silence TypeScript errors
+    // @ts-expect-error: Third-party type mismatch
     const { params } = context as RouteContext;
     await connectDB();
     
