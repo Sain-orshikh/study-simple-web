@@ -51,7 +51,6 @@ export async function DELETE(
 ) {
   try {
     // Use type assertion to silence TypeScript errors
-    // @ts-expect-error: Third-party type mismatch
     const { params } = context as RouteContext;
     await connectDB();
     
@@ -86,7 +85,6 @@ export async function PATCH(
 ) {
   try {
     // Use type assertion to silence TypeScript errors
-    // @ts-expect-error: Third-party type mismatch
     const { params } = context as RouteContext;
     await connectDB();
     
