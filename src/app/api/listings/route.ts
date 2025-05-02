@@ -101,13 +101,19 @@ export async function POST(request: NextRequest) {
       const bytes = await imageFile.arrayBuffer();
       const buffer = Buffer.from(bytes);
       
+      // Define the type for Cloudinary upload result
+      interface CloudinaryUploadResult {
+        secure_url: string;
+        // Add other properties if needed
+      }
+      
       // Upload to Cloudinary
-      const uploadResult = await new Promise((resolve, reject) => {
+      const uploadResult = await new Promise<CloudinaryUploadResult>((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           { folder: "listing-images" },
           (error, result) => {
             if (error) reject(error);
-            else resolve(result);
+            else resolve(result as CloudinaryUploadResult);
           }
         );
         

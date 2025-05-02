@@ -7,9 +7,21 @@ import Sidebar from "@/components/sidebar/sidebar"
 import { BsShare, BsCalendarEvent, BsPersonCircle } from "react-icons/bs";
 import { format } from 'date-fns';
 
+// Define the Blog interface to properly type the blog data
+interface Blog {
+  _id: string;
+  title: string;
+  content: string;
+  author: string;
+  image?: string;
+  category?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 const ViewBlogPage = () => {
   const { id } = useParams(); // Extract the id from the URL
-  const [blog, setBlog] = useState(null);
+  const [blog, setBlog] = useState<Blog | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -139,7 +151,7 @@ const ViewBlogPage = () => {
           {/* Blog Content */}
           <div className="mt-8">
             <div className='text-black text-lg dark:text-white prose max-w-none dark:prose-invert'>
-              <div dangerouslySetInnerHTML={{ __html: blog?.content }} />
+              <div dangerouslySetInnerHTML={{ __html: blog?.content || '' }} />
             </div>
           </div>
         </div>

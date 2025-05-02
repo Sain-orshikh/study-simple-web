@@ -141,13 +141,19 @@ export async function PATCH(
           const bytes = await imageFile.arrayBuffer();
           const buffer = Buffer.from(bytes);
           
+          // Define type for Cloudinary response
+          interface CloudinaryUploadResult {
+            secure_url: string;
+            [key: string]: any;
+          }
+          
           // Upload to Cloudinary
-          const uploadResult = await new Promise((resolve, reject) => {
+          const uploadResult = await new Promise<CloudinaryUploadResult>((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
               { folder: "listing-images" },
               (error, result) => {
                 if (error) reject(error);
-                else resolve(result);
+                else resolve(result as CloudinaryUploadResult);
               }
             );
             
@@ -177,7 +183,7 @@ export async function PATCH(
         updateData = { ...jsonData };
         
         // Handle image URL if provided
-        if (updateData.imageUrl) {
+        if (updateData.imageUrl && typeof updateData.imageUrl === 'string') {
           const uploadedImage = await cloudinary.uploader.upload(updateData.imageUrl, {
             folder: "listing-images",
           });
@@ -212,8 +218,9 @@ export async function PATCH(
     );
   } catch (error) {
     console.error("Error updating listing:", error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { success: false, error: "Server error", message: error.message },
+      { success: false, error: "Server error", message: errorMessage },
       { status: 500 }
     );
   }
