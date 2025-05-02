@@ -15,11 +15,12 @@ import Blog from '@/models/blog';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectDB();
     
+    const { params } = context;
     const blogId = params.id;
     const blog = await Blog.findById(blogId);
     
@@ -42,11 +43,12 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectDB();
     
+    const { params } = context;
     const blogId = params.id;
     const blog = await Blog.findById(blogId);
     
@@ -74,11 +76,12 @@ export async function DELETE(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     await connectDB();
     
+    const { params } = context;
     const blogId = params.id;
     const blog = await Blog.findById(blogId);
     
