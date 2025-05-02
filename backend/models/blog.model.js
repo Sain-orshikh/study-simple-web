@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 
+// Commented out comment schema
+/*
 const commentSchema = new mongoose.Schema({
     content: {
         type: String,
@@ -10,6 +12,7 @@ const commentSchema = new mongoose.Schema({
         default: "Anonymous",
     }
 }, { timestamps: true });
+*/
 
 const blogSchema = new mongoose.Schema({
     title:{
@@ -44,7 +47,8 @@ const blogSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
-    comments: [commentSchema]
+    // Commented out comments field
+    // comments: [commentSchema]
 },{timestamps: true});
 
 const Blog = mongoose.model("Blog", blogSchema);

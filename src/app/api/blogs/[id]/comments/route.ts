@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import connectDB from '@/lib/mongodb';
-import Blog from '@/models/blog';
+// import connectDB from '@/lib/mongodb';
+// import Blog from '@/models/blog';
 
-// Route for handling comments on a specific blog
+// Route for handling comments on a specific blog - DISABLED
 export async function GET(request: NextRequest) {
+  // Comments feature disabled
+  return NextResponse.json(
+    { success: false, message: "Comments feature has been disabled" },
+    { status: 404 }
+  );
+  
+  /* Original implementation
   try {
     await connectDB();
     
@@ -41,9 +48,17 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+  */
 }
 
 export async function POST(request: NextRequest) {
+  // Comments feature disabled
+  return NextResponse.json(
+    { success: false, message: "Comments feature has been disabled" },
+    { status: 404 }
+  );
+  
+  /* Original implementation
   try {
     await connectDB();
     
@@ -101,4 +116,5 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+  */
 }

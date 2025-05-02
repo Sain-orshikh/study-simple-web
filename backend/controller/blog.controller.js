@@ -177,6 +177,8 @@ export const dislikeBlog = async (req, res) => {
     }
 };
 
+// Commented out comment-related controller methods
+/*
 export const addComment = async (req, res) => {
     try {
         const blogId = req.params.id;
@@ -227,6 +229,7 @@ export const getComments = async (req, res) => {
         res.status(500).json({ success: false, message: "Server Error" });
     }
 };
+*/
 
 export const updateBlog = async (req, res) => {
   try {

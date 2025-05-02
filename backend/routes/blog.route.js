@@ -10,8 +10,6 @@ import {
     likeBlog,
     unlikeBlog,
     dislikeBlog, 
-    addComment, 
-    getComments,
     updateBlog
 } from "../controller/blog.controller.js";
 
@@ -23,11 +21,9 @@ router.post("/create", upload.single("image"), createBlog);
 router.put("/update/:id", upload.single("image"), updateBlog);
 router.delete("/delete/:id", deleteBlog);
 
-// Routes for likes, dislikes, and comments
+// Routes for likes and dislikes
 router.post("/like/:id", likeBlog);
 router.post("/unlike/:id", unlikeBlog);
 router.post("/dislike/:id", dislikeBlog);
-router.post("/comment/:id", addComment);
-router.get("/comments/:id", getComments);
 
 export default router;

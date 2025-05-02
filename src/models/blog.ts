@@ -1,13 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
-// Define interfaces for the document and model
-interface IComment extends Document {
-  content: string;
-  author: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
+// Define interface for the document and model
 interface IBlog extends Document {
   title: string;
   content: string;
@@ -16,23 +9,11 @@ interface IBlog extends Document {
   imageurl?: string;
   author: string;
   likes: number;
-  comments: IComment[];
   createdAt: Date;
   updatedAt: Date;
 }
 
 // Define the schema
-const commentSchema = new Schema({
-  content: {
-    type: String,
-    required: true,
-  },
-  author: {
-    type: String,
-    default: "Anonymous",
-  }
-}, { timestamps: true });
-
 const blogSchema = new Schema({
   title: {
     type: String,
@@ -66,7 +47,6 @@ const blogSchema = new Schema({
     type: Number,
     default: 0,
   },
-  comments: [commentSchema]
 }, { timestamps: true });
 
 // Create and export the model
