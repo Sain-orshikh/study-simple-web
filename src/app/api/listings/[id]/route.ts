@@ -13,12 +13,17 @@ cloudinary.config({
 // Import Listing model
 import Listing from '@/models/listing';
 
+// Define a type that matches what Next.js expects in production
+// @ts-expect-error: Third-party type mismatch
+type RouteContext = { params: { id: string } };
+
 export async function GET(
   request: NextRequest,
-// @ts-expect-error: Third-party type mismatch
-  { params }: { params: { id: string } }
+  context: unknown
 ) {
   try {
+    // Use type assertion to silence TypeScript errors
+    const { params } = context as RouteContext;
     await connectDB();
     
     const listingId = params.id;
@@ -43,10 +48,11 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-// @ts-expect-error: Third-party type mismatch
-  { params }: { params: { id: string } }
+  context: unknown
 ) {
   try {
+    // Use type assertion to silence TypeScript errors
+    const { params } = context as RouteContext;
     await connectDB();
     
     const listingId = params.id;
@@ -76,10 +82,11 @@ export async function DELETE(
 
 export async function PATCH(
   request: NextRequest,
-// @ts-expect-error: Third-party type mismatch
-  { params }: { params: { id: string } }
+  context: unknown
 ) {
   try {
+    // Use type assertion to silence TypeScript errors
+    const { params } = context as RouteContext;
     await connectDB();
     
     const listingId = params.id;
