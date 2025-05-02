@@ -71,7 +71,7 @@ export function ContactSellerModal({
           sellerEmail: item.email,
           message,
           // Include both ID formats for robustness
-          listingId: item._id || item.id
+          listingId: (item as any)._id || item.id
         }),
       });
       

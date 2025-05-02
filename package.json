@@ -17,6 +17,7 @@
     "@mui/material": "^7.0.1",
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-slot": "^1.1.2",
+    "@radix-ui/react-switch": "^1.2.2",
     "@sendgrid/mail": "^8.1.5",
     "@tanstack/react-query": "^5.71.10",
     "@tiptap/extension-bullet-list": "^2.11.7",

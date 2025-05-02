@@ -11,6 +11,20 @@ import { Footer } from "@/components/home/Footer"
 import { NextEventNotification } from "@/components/home/NextEventNotification"
 import { MusicIcon, GlobeIcon, LaptopIcon, Calendar } from "lucide-react"
 import { eventsData, getUpcomingEvents, getPastEvents } from "@/data/events"
+import React from "react"
+
+// Properly defining the Event type to match component requirements
+interface Event {
+  title: string;
+  description: string;
+  icon: React.ReactElement<{ className?: string }>;
+  link: string;
+  date: string;
+  dateString: string;
+  eventDate: Date;
+  location: string;
+  image?: string;
+}
 
 export default function Home() {
   // Scroll state for showing elements after hero section
@@ -49,10 +63,10 @@ export default function Home() {
   }, [])
 
   // Format events from eventsData to match the expected format for the carousel
-  const formattedEvents = eventsData.map(event => ({
+  const formattedEvents: Event[] = eventsData.map(event => ({
     title: event.title,
     description: event.description,
-    icon: event.icon,
+    icon: event.icon as React.ReactElement<{ className?: string }>,
     link: event.link || `/events/${event.id}`,
     date: event.dateString,
     dateString: event.date, // Using the ISO date string
@@ -64,7 +78,7 @@ export default function Home() {
   // Get 4 featured events (prioritizing the Shark Tank and Midnight Masquerade events)
   const sharkTankEvent = eventsData.find(event => event.id === "shark-tank-2024");
   const masqueradeEvent = eventsData.find(event => event.id === "midnight-masquerade");
-  const featuredEvents = [
+  const featuredEvents: Event[] = [
     ...(sharkTankEvent ? [sharkTankEvent] : []), // Add Shark Tank as first event if found
     ...(masqueradeEvent ? [masqueradeEvent] : []), // Add Midnight Masquerade as second event if found
     ...getPastEvents(eventsData)
@@ -75,7 +89,7 @@ export default function Home() {
     .map(event => ({
       title: event.title,
       description: event.description,
-      icon: event.icon,
+      icon: event.icon as React.ReactElement<{ className?: string }>,
       link: event.link || `/events/${event.id}`,
       date: event.dateString,
       dateString: event.date,
@@ -85,10 +99,10 @@ export default function Home() {
     }));
 
   // Get upcoming events for the notification
-  const upcomingEvents = getUpcomingEvents(eventsData).map(event => ({
+  const upcomingEvents: Event[] = getUpcomingEvents(eventsData).map(event => ({
     title: event.title,
     description: event.description,
-    icon: event.icon,
+    icon: event.icon as React.ReactElement<{ className?: string }>,
     link: event.link || `/events/${event.id}`,
     date: event.dateString,
     dateString: event.date,
@@ -120,7 +134,7 @@ export default function Home() {
   ]
 
   return (
-    <Sidebar showSidebar={showElements}>
+    <Sidebar>
       <div ref={heroRef} className="w-full relative">
         <HeroSection />
       </div>
@@ -132,7 +146,7 @@ export default function Home() {
       <EventImageCarousel events={featuredEvents} />
       
       <WhyUseSection />
-      <LatestUpdates events={formattedEvents} resources={resources} />
+      <LatestUpdates resources={resources} />
       <CallToAction />
       <Footer />
     </Sidebar>

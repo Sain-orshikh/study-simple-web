@@ -17,6 +17,22 @@ import { EditListingModal } from "@/components/market/EditListingModal"
 import { SupportTicketModal } from "@/components/market/SupportTicketModal"
 import { ListingIDAlert } from "@/components/market/ListingIDAlert"
 
+// Define proper MarketItem type
+interface MarketItem {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+  category: string;
+  condition: string;
+  status: string;
+  images?: string[];
+  email?: string;
+  phone?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 // Create a client
 const queryClient = new QueryClient()
 
@@ -38,19 +54,20 @@ function MarketPageContent() {
   const categories = ["All", "Textbooks", "Electronics", "Lab Equipment", "Supplies", "Furniture", "Other"];
   const statuses = ["available", "sold", "reserved", "unavailable"];
 
+  // Add local state for handling loading states since they're not in the hook
+  const [isCreatingListing, setIsCreatingListing] = useState(false);
+  const [isUpdatingListing, setIsUpdatingListing] = useState(false);
+  const [isSubmittingSupportTicket, setIsSubmittingSupportTicket] = useState(false);
+
   const { 
     items, 
     isLoading, 
     isError, 
     createListing, 
-    isCreatingListing,
     updateListing,
-    isUpdatingListing,
-    fetchItemById, // Changed from fetchListingById to match the actual function name
+    fetchItemById,
     contactSeller,
-    submitSupportRequest, // Changed from submitSupportTicket to match the actual function name
-    isSubmittingSupportTicket,
-    // New props for ListingIDAlert
+    submitSupportRequest,
     createdListingId,
     showListingIdAlert,
     handleCloseListingIdAlert
@@ -58,6 +75,34 @@ function MarketPageContent() {
     category: selectedCategory,
     search: searchQuery
   });
+
+  // Wrapped functions to handle loading states
+  const handleCreateListing = async (formData: FormData) => {
+    setIsCreatingListing(true);
+    try {
+      await createListing(formData);
+    } finally {
+      setIsCreatingListing(false);
+    }
+  };
+
+  const handleUpdateListing = async ({ listingId, formData }: { listingId: string; formData: FormData }) => {
+    setIsUpdatingListing(true);
+    try {
+      await updateListing({ listingId, formData });
+    } finally {
+      setIsUpdatingListing(false);
+    }
+  };
+
+  const handleSupportRequest = async (data: any) => {
+    setIsSubmittingSupportTicket(true);
+    try {
+      await submitSupportRequest(data);
+    } finally {
+      setIsSubmittingSupportTicket(false);
+    }
+  };
 
   // Modal handlers
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,7 +210,7 @@ function MarketPageContent() {
             <div className="grid md:grid-cols-2 gap-6">
               {items.map((item) => (
                 <ItemCard 
-                  key={item._id || item.id} 
+                  key={item.id} 
                   item={item} 
                   onContactClick={handleContactClick} 
                 />
@@ -183,7 +228,7 @@ function MarketPageContent() {
       <CreateListingModal
         open={openCreateModal}
         onClose={() => setOpenCreateModal(false)}
-        onSubmit={createListing}
+        onSubmit={handleCreateListing}
         isSubmitting={isCreatingListing}
         onPreview={handlePreview}
         categories={categories}
@@ -194,9 +239,9 @@ function MarketPageContent() {
       <EditListingModal
         open={editModalOpen}
         onClose={() => setEditModalOpen(false)}
-        onSubmit={updateListing}
+        onSubmit={handleUpdateListing}
         isSubmitting={isUpdatingListing}
-        fetchListingById={fetchItemById} // Updated to use the correct function name
+        fetchListingById={fetchItemById}
         categories={categories}
         conditions={conditions}
         statuses={statuses}
@@ -206,7 +251,7 @@ function MarketPageContent() {
       <SupportTicketModal
         open={supportOpen}
         onClose={() => setSupportOpen(false)}
-        onSubmit={submitSupportRequest}
+        onSubmit={handleSupportRequest}
         isSubmitting={isSubmittingSupportTicket}
       />
       

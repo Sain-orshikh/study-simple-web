@@ -53,7 +53,8 @@ export async function getPlaylists(playlistIds: string[]) {
       playlistIds.map(id => spotifyApi.getPlaylist(id))
     );
     
-    return playlists.map(response => response.body);
+    // Updated type annotation here
+    return playlists.map((response: { body: any }) => response.body);
   } catch (error) {
     console.error('Error fetching playlists:', error);
     throw error;
@@ -73,12 +74,52 @@ export async function getTrack(trackId: string) {
   }
 }
 
+// Types for Spotify data
+interface SpotifyTrack {
+  id: string;
+  name: string;
+  artists: Array<{ name: string }>;
+  album: {
+    images: Array<{ url: string }>;
+  };
+}
+
+interface SpotifyPlaylist {
+  id: string;
+  name: string;
+  description: string;
+  external_urls: {
+    spotify: string;
+  };
+  tracks: {
+    items: Array<{
+      track: SpotifyTrack;
+    }>;
+  };
+}
+
+interface FormattedTrack {
+  id: string;
+  name: string;
+  artist: string;
+  coverImage: string;
+}
+
+interface FormattedPlaylist {
+  id: string;
+  name: string;
+  description: string;
+  playlistId: string;
+  link: string;
+  tracks: FormattedTrack[];
+}
+
 // Convert Spotify API response to our internal format
-export function formatPlaylistData(spotifyPlaylist: any) {
-  const tracks = spotifyPlaylist.tracks.items.slice(0, 10).map((item: any) => ({
+export function formatPlaylistData(spotifyPlaylist: SpotifyPlaylist): FormattedPlaylist {
+  const tracks = spotifyPlaylist.tracks.items.slice(0, 10).map((item) => ({
     id: item.track.id,
     name: item.track.name,
-    artist: item.track.artists.map((artist: any) => artist.name).join(', '),
+    artist: item.track.artists.map((artist) => artist.name).join(', '),
     coverImage: item.track.album.images[0]?.url || '',
   }));
   

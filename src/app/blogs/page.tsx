@@ -26,8 +26,19 @@ export default function BlogsPage() {
   
   const allBlogs = blogs?.data || [];
 
+  // Define interface for blog type
+  interface Blog {
+    _id: string;
+    image: string;
+    title: string;
+    content: string;
+    category: string;
+    author?: string;
+    createdAt?: string;
+  }
+
   // Enhanced filter function to properly handle categories
-  const filteredBlogs = allBlogs.filter(blog => {
+  const filteredBlogs = allBlogs.filter((blog: Blog) => {
     // Handle category matching correctly, accounting for case sensitivity
     const matchesCategory = selectedCategory === "All" || 
       blog.category?.toLowerCase() === selectedCategory.toLowerCase();
@@ -95,7 +106,7 @@ export default function BlogsPage() {
                 <h2 className="text-xl font-semibold">Featured Articles</h2>
               </div>
               <div className="grid grid-cols-3 gap-6">
-                {featuredBlogs.map((blog) => (
+                {featuredBlogs.map((blog: Blog) => (
                   <div key={`featured-${blog._id}`} className="transform transition-all duration-300 hover:scale-105">
                     <BlogCard blog={blog} isPreview={false} />
                   </div>
@@ -226,7 +237,7 @@ export default function BlogsPage() {
                   Showing {displayedBlogs.length} of {filteredBlogs.length} blogs
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {displayedBlogs.map((blog) => (
+                  {displayedBlogs.map((blog: Blog) => (
                     <div key={blog._id}>
                       <BlogCard blog={blog} isPreview={false} />
                     </div>

@@ -15,7 +15,7 @@ export async function GET() {
     const spotifyPlaylists = await getPlaylists(PLAYLIST_IDS);
     
     // Format the data to match our application's structure
-    const formattedPlaylists: Partial<PlaylistType>[] = spotifyPlaylists.map((playlist, index) => {
+    const formattedPlaylists: Partial<PlaylistType>[] = spotifyPlaylists.map((playlist: any, index: any) => {
       const formattedData = formatPlaylistData(playlist);
       
       // Add icon and other meta data from our static data

@@ -11,7 +11,7 @@ const ListingEditor = () => {
   const editId = searchParams.get("editId");
   const isEditMode = !!editId;
 
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | ArrayBuffer | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -58,9 +58,9 @@ const ListingEditor = () => {
     }
   };
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
       setImage(file);
       const reader = new FileReader();
       reader.onload = () => {

@@ -170,7 +170,8 @@ export function useMarketItems(options: FetchMarketItemsOptions = {}) {
         return data;
     } catch (error) {
         console.error('Error updating listing:', error);
-        toast.error(`Failed to update listing: ${error.message}`);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        toast.error(`Failed to update listing: ${errorMessage}`);
         throw error;
     }
   };

@@ -66,7 +66,6 @@ export default function StudiesPage() {
                 <TabsList className="flex w-full md:w-fit">
                   <TabsTrigger
                     value="igcse"
-                    className="w-full flex-1 rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-md py-3 transition-all duration-200 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
                   >
                     <div className="w-full flex items-center justify-center space-x-2">
                       <BookOpenIcon className="h-4 w-4" />
@@ -75,7 +74,6 @@ export default function StudiesPage() {
                   </TabsTrigger>
                   <TabsTrigger
                     value="alevel"
-                    className="w-full flex-1 rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:shadow-md py-3 transition-all duration-200 data-[state=active]:text-blue-600 dark:data-[state=active]:text-blue-400"
                   >
                     <div className="flex items-center justify-center space-x-2">
                       <GlobeIcon className="h-4 w-4" />

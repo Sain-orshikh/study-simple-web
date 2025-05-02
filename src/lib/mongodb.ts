@@ -1,5 +1,17 @@
 import mongoose from 'mongoose';
 
+// Define interface for the cached connection
+interface MongooseCache {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
+}
+
+// Define the global type
+declare global {
+  // eslint-disable-next-line no-var
+  var mongooseCache: MongooseCache | undefined;
+}
+
 const MONGODB_URI = process.env.MONGO_URI;
 
 if (!MONGODB_URI) {
@@ -11,10 +23,10 @@ if (!MONGODB_URI) {
  * in development. This prevents connections growing exponentially
  * during API Route usage.
  */
-let cached = global.mongoose;
+let cached: MongooseCache = global.mongooseCache || { conn: null, promise: null };
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+if (!global.mongooseCache) {
+  global.mongooseCache = cached;
 }
 
 async function connectDB() {
@@ -31,9 +43,12 @@ async function connectDB() {
       family: 4 // Use IPv4, skip trying IPv6
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
-    });
+    // Ensure MONGODB_URI is defined at runtime
+    if (!MONGODB_URI) {
+      throw new Error('MONGODB_URI is undefined');
+    }
+
+    cached.promise = mongoose.connect(MONGODB_URI, opts);
   }
   
   try {
