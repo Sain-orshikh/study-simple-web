@@ -4,6 +4,7 @@ import SupportTicket from '@/models/support-ticket';
 
 export async function GET(
   request: NextRequest,
+// @ts-expect-error: Third-party type mismatch
   { params }: { params: { id: string } }
 ) {
   try {
@@ -31,6 +32,7 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
+// @ts-expect-error: Third-party type mismatch
   { params }: { params: { id: string } }
 ) {
   try {
@@ -75,6 +77,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
+// @ts-expect-error: Third-party type mismatch
   { params }: { params: { id: string } }
 ) {
   try {

@@ -4,6 +4,7 @@ import EventProposal from '@/models/event-proposal';
 
 export async function GET(
   request: NextRequest,
+// @ts-expect-error: Third-party type mismatch
   { params }: { params: { id: string } }
 ) {
   try {
@@ -31,6 +32,7 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
+// @ts-expect-error: Third-party type mismatch
   { params }: { params: { id: string } }
 ) {
   try {
@@ -63,6 +65,7 @@ export async function DELETE(
 
 export async function PATCH(
   request: NextRequest,
+// @ts-expect-error: Third-party type mismatch
   { params }: { params: { id: string } }
 ) {
   try {
