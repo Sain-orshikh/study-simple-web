@@ -3,7 +3,6 @@ import connectDB from '@/lib/mongodb';
 import PodcastSubscriber from '@/models/podcast-subscriber';
 
 // Define a type that matches what Next.js expects in production
-// @ts-expect-error: Third-party type mismatch
 type RouteContext = { params: { id: string } };
 
 export async function GET(
