@@ -14,7 +14,7 @@ cloudinary.config({
 import Blog from '@/models/blog';
 
 // Define a type that matches what Next.js expects in production
-// @ts-expect-error
+// @ts-expect-error: Third-party type mismatch
 type RouteContext = { params: { id: string } };
 
 export async function GET(
