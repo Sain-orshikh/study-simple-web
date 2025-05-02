@@ -20,7 +20,11 @@ const eslintConfig = [
       // Disable require-style imports error
       "@typescript-eslint/no-require-imports": "off",
       // Disable unescaped entities warning
-      "react/no-unescaped-entities": "off"
+      "react/no-unescaped-entities": "off",
+      // Silence unused @ts-expect-error directives
+      "@typescript-eslint/prefer-ts-expect-error": "off",
+      "@typescript-eslint/no-unnecessary-type-assertion": "off",
+      "@typescript-eslint/unnecessary-type-assertion": "off"
     },
   }
 ];
