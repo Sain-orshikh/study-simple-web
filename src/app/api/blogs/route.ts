@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       const buffer = Buffer.from(bytes);
       
       // Upload to Cloudinary using the utility function
-      const uploadResult = await uploadBuffer(buffer, "blog-images");
+      const uploadResult = await uploadBuffer(buffer, "blog-images") as { secure_url: string };
       finalImageUrl = uploadResult.secure_url;
     } else if (directUrl) {
       // Upload URL to Cloudinary using our utility
