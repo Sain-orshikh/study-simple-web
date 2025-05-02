@@ -16,12 +16,12 @@ import Listing from '@/models/listing';
 export async function GET(
   request: NextRequest,
 // @ts-expect-error: Third-party type mismatch
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
     await connectDB();
     
-    const listingId = context.params.id;
+    const listingId = params.id;
     const listing = await Listing.findById(listingId);
     
     if (!listing) {
@@ -44,12 +44,12 @@ export async function GET(
 export async function DELETE(
   request: NextRequest,
 // @ts-expect-error: Third-party type mismatch
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
     await connectDB();
     
-    const listingId = context.params.id;
+    const listingId = params.id;
     const listing = await Listing.findById(listingId);
     
     if (!listing) {
@@ -77,15 +77,12 @@ export async function DELETE(
 export async function PATCH(
   request: NextRequest,
 // @ts-expect-error: Third-party type mismatch
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
     await connectDB();
     
-    // Use await on params for Next.js App Router compatibility
-    const params = context.params;
     const listingId = params.id;
-    
     const listing = await Listing.findById(listingId);
     
     if (!listing) {
