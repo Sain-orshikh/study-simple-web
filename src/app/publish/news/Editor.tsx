@@ -12,6 +12,7 @@ import { MdPreview } from "react-icons/md";
 import React, { useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Heading from "@tiptap/extension-heading";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import TextAlign from "@tiptap/extension-text-align";
@@ -71,10 +72,59 @@ const Editor = () => {
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        heading: { levels: [1, 2, 3, 4, 5, 6] },
+      // Core extensions first
+      Document,
+      Text,
+      Paragraph,
+      
+      // Configure list-related extensions together before StarterKit
+      ListItem.configure({
+        HTMLAttributes: {
+          class: 'list-item',
+        },
       }),
+      BulletList.configure({
+        keepMarks: true,
+        keepAttributes: true,
+        HTMLAttributes: {
+          class: 'bullet-list',
+        },
+      }),
+      OrderedList.configure({
+        keepMarks: true,
+        keepAttributes: true,
+        HTMLAttributes: {
+          class: 'ordered-list',
+        },
+      }),
+      
+      // StarterKit with list extensions disabled and heading handled separately
+      StarterKit.configure({
+        heading: false, // Disable built-in heading
+        bulletList: false,
+        orderedList: false,
+        listItem: false,
+      }),
+      
+      // Explicitly configure the Heading extension
+      Heading.configure({
+        levels: [1, 2, 3, 4, 5, 6],
+        HTMLAttributes: {
+          class: 'editor-heading',
+        },
+      }),
+      
+      // Rest of the extensions
       Gapcursor,
+      TextStyle,
+      Underline,
+      FontFamily,
+      Highlight.configure({multicolor: true}),
+      Image,
+      TextAlign.configure({ 
+        types: ["heading", "paragraph", "bulletList", "orderedList", "listItem"] 
+      }),
+      ImageResize,
       
       Link.configure({
         openOnClick: true,
@@ -126,29 +176,27 @@ const Editor = () => {
             return false
           }
         },
-
       }),
-      Document,
-      Text,
-      Paragraph,
-      BulletList,
-      OrderedList,
-      ListItem,
-      TextStyle,
-      Underline,
-      FontFamily,
-      Highlight.configure({multicolor: true}),
-      Image,
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
-      ImageResize,
     ],
     content: "<p></p>",
+    onUpdate: ({ editor }) => {
+      // This helps debug any issues with the editor
+      console.log('Editor content:', editor.getHTML());
+      setContent(editor.getHTML());
+    },
+    // Add editor styling options
+    editorProps: {
+      attributes: {
+        class: 'prose max-w-none focus:outline-none tiptap',
+      },
+    },
   });
   const [previewOpen, setPreviewOpen] = useState(false);
   const [image, setImage] = useState<File | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('Others');
+  const [author, setAuthor] = useState('');
   const [imagePreview, setImagePreview] = useState<string | ArrayBuffer | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -178,7 +226,8 @@ const Editor = () => {
     console.log("Title:", title);
     console.log("Content:", content);
     console.log("Category:", category);
-    if (!image || !title || !content || !category) {
+    console.log("Author:", author);
+    if (!image || !title || !content || !category || !author) {
       toast.error("Please fill in all fields and select an image.");
       return;
     }
@@ -189,6 +238,7 @@ const Editor = () => {
     formData.append('title', title); // Append the title
     formData.append('content', content); // Append the content
     formData.append('category', category); // Append the category
+    formData.append('author', author); // Append the author
 
     try {
       // Use FormData for uploading files
@@ -256,6 +306,140 @@ const Editor = () => {
 
   return (
     <div className="border py-4 w-full">
+      <style jsx global>{`
+        /* TipTap editor styles based on documentation */
+        .tiptap {
+          :first-child {
+            margin-top: 0;
+          }
+        }
+        
+        /* Heading styles */
+        .tiptap h1,
+        .tiptap h2,
+        .tiptap h3,
+        .tiptap h4,
+        .tiptap h5,
+        .tiptap h6 {
+          line-height: 1.1;
+          margin-top: 2.5rem;
+          text-wrap: pretty;
+        }
+
+        .tiptap h1,
+        .tiptap h2 {
+          margin-top: 3.5rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .tiptap h1 {
+          font-size: 1.4rem;
+        }
+
+        .tiptap h2 {
+          font-size: 1.2rem;
+        }
+
+        .tiptap h3 {
+          font-size: 1.1rem;
+        }
+
+        .tiptap h4,
+        .tiptap h5,
+        .tiptap h6 {
+          font-size: 1rem;
+        }
+        
+        /* Direct element styling - more reliable than classes */
+        .ProseMirror h1 {
+          font-size: 1.8rem !important;
+          font-weight: bold !important;
+          margin-top: 2.5rem !important;
+          margin-bottom: 1rem !important;
+          line-height: 1.1 !important;
+        }
+        
+        .ProseMirror h2 {
+          font-size: 1.5rem !important;
+          font-weight: bold !important;
+          margin-top: 2rem !important;
+          margin-bottom: 0.75rem !important;
+          line-height: 1.1 !important;
+        }
+        
+        .ProseMirror h3 {
+          font-size: 1.3rem !important;
+          font-weight: bold !important;
+          margin-top: 1.5rem !important;
+          margin-bottom: 0.5rem !important;
+          line-height: 1.1 !important;
+        }
+        
+        .ProseMirror h4 {
+          font-size: 1.1rem !important;
+          font-weight: bold !important;
+          margin-top: 1.25rem !important;
+          margin-bottom: 0.5rem !important;
+          line-height: 1.1 !important;
+        }
+        
+        .ProseMirror h5 {
+          font-size: 1rem !important;
+          font-weight: bold !important;
+          margin-top: 1rem !important;
+          margin-bottom: 0.5rem !important;
+          line-height: 1.1 !important;
+        }
+        
+        .ProseMirror h6 {
+          font-size: 0.9rem !important;
+          font-weight: bold !important;
+          margin-top: 1rem !important;
+          margin-bottom: 0.5rem !important;
+          line-height: 1.1 !important;
+        }
+        
+        /* List styling - more specific and forceful */
+        .ProseMirror ul {
+          list-style-type: disc !important;
+          padding-left: 1.5em !important;
+          margin: 1em 0 !important;
+        }
+        
+        .ProseMirror ol {
+          list-style-type: decimal !important;
+          padding-left: 1.5em !important;
+          margin: 1em 0 !important;
+        }
+        
+        .ProseMirror li {
+          display: list-item !important;
+          padding: 0.2em 0 !important;
+        }
+        
+        /* Ensure paragraphs inside list items are properly spaced */
+        .ProseMirror li p {
+          margin: 0 !important;
+          display: inline !important;
+        }
+        
+        /* General content styling */
+        .ProseMirror p {
+          margin: 0.8em 0 !important;
+        }
+        
+        .ProseMirror {
+          min-height: 100px;
+          padding: 0.5em !important;
+        }
+        
+        /* Ensure the active bullet/numbering is visible immediately */
+        .ProseMirror ul li::marker,
+        .ProseMirror ol li::marker {
+          display: inline !important;
+          color: currentColor !important;
+        }
+      `}</style>
       <Toaster/>
       <div className="w-[80%] mx-auto mb-2 font-bold text-2xl text-start">
         Content
@@ -379,11 +563,24 @@ const Editor = () => {
           >
             <RiMenu3Fill fontSize={20}/>
           </button>
-        <button onClick={() => editor.chain().focus().toggleBulletList().run()}>
+        <button 
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          className={`${editor.isActive('bulletList') ? 'bg-blue-200 rounded' : ''}`}
+        >
           <MdFormatListBulleted fontSize={20}/>
         </button>
-        <button onClick={() => editor.chain().focus().toggleOrderedList().run()}>
+        <button 
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          className={`${editor.isActive('orderedList') ? 'bg-blue-200 rounded' : ''}`}
+        >
           <AiOutlineOrderedList fontSize={20}/>
+        </button>
+        <button 
+          onClick={() => console.log('Editor state:', editor.getJSON())}
+          className="ml-2 text-xs text-gray-500"
+          title="Debug - Print editor state to console"
+        >
+          Debug
         </button>
       </div>
       <div className="w-[80%] mx-auto border border-gray-300 rounded-md min-h-[300px] mb-6 relative">
@@ -419,6 +616,17 @@ const Editor = () => {
                 ))}
             </select>
         </div>
+      </div>
+      <div className="w-[80%] mx-auto mt-3 font-bold text-2xl text-start">
+        Author
+      </div>
+      <div className="w-[80%] mx-auto mt-3 flex flex-row">
+        <input
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
+          placeholder="Enter author name here..."
+          className="border w-full h-10 px-2"
+        />
       </div>
       <div className="w-[80%] mx-auto mt-3 font-bold text-2xl text-start">
         Cover Image

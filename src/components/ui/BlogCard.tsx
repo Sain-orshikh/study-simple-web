@@ -109,7 +109,13 @@ const BlogCard: React.FC<{ blog: Blog, isPreview: boolean }> = ({ blog, isPrevie
           )}
         </h3>
         
-        {/* Date and share button in same row - removed author section */}
+        {/* Author name */}
+        <div className="flex items-center text-xs text-gray-600 dark:text-gray-300 mb-2">
+          <span className="font-medium">By: </span>
+          <span className="ml-1">{blog.author || 'Anonymous'}</span>
+        </div>
+        
+        {/* Date and share button in same row */}
         <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mb-4">
           <div className="flex items-center">
             <BsCalendarEvent className="mr-1" size={14} />
@@ -125,8 +131,6 @@ const BlogCard: React.FC<{ blog: Blog, isPreview: boolean }> = ({ blog, isPrevie
             <span className="text-xs">Share</span>
           </button>
         </div>
-        
-        {/* Removed the separate div with border-t for the share button */}
       </div>
     </div>
   )
